@@ -204,18 +204,11 @@ export async function POST(request: NextRequest) {
 
       if (uploadErr) throw uploadErr;
 
-      const { data: signed } = await admin.storage
-        .from('product-photos')
-        .createSignedUrl(storagePath, 60 * 60 * 24);
-
-      if (signed) {
-        storedOutputUrls.push(signed.signedUrl);
-      } else {
-        storedOutputUrls.push(replicateUrl);
-      }
+      // Always serve via our own image route — fresh signed URLs every request
+      storedOutputUrls.push(`/api/image/${generationId}/${i}`);
     } catch (err) {
-      console.error('Storage upload error:', err);
-      storedOutputUrls.push(replicateUrl);
+      console.error('Storage upload error for image', i, err);
+      // Skip this image rather than serve a dead URL
     }
   }
 

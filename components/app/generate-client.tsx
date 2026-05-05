@@ -436,12 +436,9 @@ type ResultCardProps = {
 };
 
 function ResultCard({ url, index }: ResultCardProps) {
+  const downloadUrl = `${url}?download=1`;
   return (
-    <a
-      href={url}
-      download={`productshot-${index + 1}.jpg`}
-      className="group bg-muted/40 relative block aspect-square overflow-hidden rounded-xl"
-    >
+    <div className="group bg-muted/40 relative block aspect-square overflow-hidden rounded-xl">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={url}
@@ -449,12 +446,16 @@ function ResultCard({ url, index }: ResultCardProps) {
         className="h-full w-full object-cover transition-transform group-hover:scale-105"
         loading="lazy"
       />
-      <div className="absolute inset-0 flex items-end justify-end bg-gradient-to-t from-black/60 to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100">
+      <a
+        href={downloadUrl}
+        className="absolute inset-0 flex items-end justify-end bg-gradient-to-t from-black/60 to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100"
+        aria-label={`Download photo ${index + 1}`}
+      >
         <span className="text-foreground inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium">
           <Download className="h-3.5 w-3.5" />
           Download
         </span>
-      </div>
-    </a>
+      </a>
+    </div>
   );
 }
