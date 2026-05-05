@@ -29,6 +29,57 @@ export type AuthState = {
   success?: boolean;
 };
 
+/**
+ * Translate Supabase error messages and codes into user-friendly text.
+ * Supabase ships internal-looking errors that don't make sense to end users.
+ */
+function humanizeAuthError(
+  message: string,
+  context: 'magic-signin' | 'magic-signup' | 'password' | 'reset',
+): string {
+  const lower = message.toLowerCase();
+
+  // Sign-in tried with a non-existent account
+  if (lower.includes('signups not allowed for otp')) {
+    if (context === 'magic-signin') {
+      return "We couldn't find an account with that email. Want to create one instead?";
+    }
+    return 'New signups are temporarily disabled. Try again later.';
+  }
+
+  // Sender domain not verified or wrong recipient on Resend testing
+  if (
+    lower.includes('error sending') ||
+    lower.includes('email rate limit') ||
+    lower.includes('smtp')
+  ) {
+    return "We couldn't send the email right now. Please try again in a minute, or use the password option.";
+  }
+
+  // User already registered
+  if (lower.includes('user already registered')) {
+    return 'An account with that email already exists. Try signing in instead.';
+  }
+
+  // Bad password format
+  if (lower.includes('password should be')) {
+    return 'Password must be at least 8 characters.';
+  }
+
+  // Invalid login credentials
+  if (lower.includes('invalid login credentials')) {
+    return 'Email or password is incorrect.';
+  }
+
+  // Email not confirmed
+  if (lower.includes('email not confirmed')) {
+    return 'Please confirm your email before signing in. Check your inbox for the confirmation link.';
+  }
+
+  // Generic fallback — short, no internal jargon leaked
+  return 'Something went wrong. Please try again.';
+}
+
 // ---------------------------------------------------------------
 // Magic link flows
 // ---------------------------------------------------------------
@@ -51,7 +102,7 @@ export async function signUpAction(_prev: AuthState, formData: FormData): Promis
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: humanizeAuthError(error.message, 'magic-signup') };
   }
 
   redirect(`/check-email?email=${encodeURIComponent(parsed.data.email)}`);
@@ -75,7 +126,7 @@ export async function signInAction(_prev: AuthState, formData: FormData): Promis
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: humanizeAuthError(error.message, 'magic-signin') };
   }
 
   redirect(`/check-email?email=${encodeURIComponent(parsed.data.email)}`);
@@ -109,7 +160,7 @@ export async function signUpWithPasswordAction(
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: humanizeAuthError(error.message, 'password') };
   }
 
   // If email confirmation is enabled, user gets a confirmation email.
@@ -142,7 +193,7 @@ export async function signInWithPasswordAction(
   });
 
   if (error) {
-    // Don't leak which part was wrong (email vs password) — security best practice
+    // Always say "incorrect" to avoid leaking which part was wrong
     return { error: 'Email or password is incorrect.' };
   }
 
@@ -166,7 +217,7 @@ export async function requestPasswordResetAction(
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: humanizeAuthError(error.message, 'reset') };
   }
 
   redirect(`/check-email?email=${encodeURIComponent(parsed.data.email)}&reset=true`);
@@ -197,7 +248,7 @@ export async function updatePasswordAction(
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: humanizeAuthError(error.message, 'password') };
   }
 
   redirect('/dashboard');
@@ -211,4 +262,33 @@ export async function signOutAction() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect('/');
+}
+
+// ---------------------------------------------------------------
+// Google OAuth
+// ---------------------------------------------------------------
+
+export async function signInWithGoogleAction(): Promise<AuthState> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${SITE_URL}/auth/callback?next=/dashboard`,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      },
+    },
+  });
+
+  if (error) {
+    return { error: humanizeAuthError(error.message, 'password') };
+  }
+
+  if (data?.url) {
+    redirect(data.url);
+  }
+
+  return { error: 'Could not start Google sign-in. Please try again.' };
 }
