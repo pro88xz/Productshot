@@ -24,26 +24,28 @@ export default function HomePage() {
         {/* Hero */}
         <section className="relative overflow-hidden">
           <div className="gradient-radial-primary absolute inset-0" aria-hidden="true" />
-          <div className="container-prose relative pt-20 pb-24 md:pt-28 md:pb-32">
+          <div className="container-prose relative pt-12 pb-16 sm:pt-16 sm:pb-20 md:pt-24 md:pb-28">
             <div className="mx-auto max-w-3xl text-center">
               <div className="border-border/60 bg-background/60 text-muted-foreground inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium backdrop-blur">
                 <Sparkles className="text-primary h-3 w-3" />
                 <span>One photo in. Twelve studio shots out.</span>
               </div>
 
-              <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl md:text-6xl lg:text-7xl">
-                Product photos that look <span className="text-primary">expensive</span>.
-                <br className="hidden sm:block" />
-                Without the photo shoot.
+              <h1 className="mt-5 text-3xl leading-[1.1] font-semibold tracking-tight text-balance sm:mt-6 sm:text-5xl md:text-6xl lg:text-7xl">
+                Product photos that look{' '}
+                <span className="from-primary to-primary/70 bg-gradient-to-r bg-clip-text text-transparent">
+                  expensive
+                </span>
+                . <span className="block sm:inline">Without the photo shoot.</span>
               </h1>
 
-              <p className="text-muted-foreground mt-6 text-lg text-balance md:text-xl">
+              <p className="text-muted-foreground mt-5 text-base text-balance sm:mt-6 sm:text-lg md:text-xl">
                 Snap your product on a kitchen table. Get back a full set of studio, lifestyle, and
                 editorial photos ready to list on Etsy, Shopify, Amazon, or TikTok Shop. Sixty
                 seconds. No photographer required.
               </p>
 
-              <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row">
                 <Button asChild size="lg" className="w-full sm:w-auto">
                   <Link href="/#pricing">
                     Generate my photos
@@ -55,18 +57,18 @@ export default function HomePage() {
                 </Button>
               </div>
 
-              <p className="text-muted-foreground mt-6 text-sm">
+              <p className="text-muted-foreground mt-5 text-sm sm:mt-6">
                 3 free generations. No credit card required.
               </p>
             </div>
 
-            {/* Hero visual placeholder — we'll replace this with real before/after in Phase 4 */}
-            <div className="relative mx-auto mt-16 max-w-5xl">
-              <div className="border-border/60 bg-muted/40 shadow-primary/5 aspect-[16/10] overflow-hidden rounded-2xl border shadow-2xl">
+            {/* Hero visual placeholder */}
+            <div className="relative mx-auto mt-12 max-w-5xl sm:mt-16">
+              <div className="border-border/60 bg-muted/40 shadow-primary/5 aspect-[4/3] overflow-hidden rounded-xl border shadow-xl sm:aspect-[16/10] sm:rounded-2xl sm:shadow-2xl">
                 <div className="flex h-full items-center justify-center">
-                  <div className="text-center">
-                    <ImageIcon className="text-muted-foreground/40 mx-auto h-12 w-12" />
-                    <p className="text-muted-foreground mt-4 text-sm">
+                  <div className="px-6 text-center">
+                    <ImageIcon className="text-muted-foreground/40 mx-auto h-10 w-10 sm:h-12 sm:w-12" />
+                    <p className="text-muted-foreground mt-3 text-sm sm:mt-4">
                       Before / After gallery loads here
                     </p>
                     <p className="text-muted-foreground/60 mt-1 text-xs">
@@ -81,11 +83,11 @@ export default function HomePage() {
 
         {/* Trusted by / social proof bar */}
         <section className="border-border/40 bg-muted/30 border-y">
-          <div className="container-prose py-8">
+          <div className="container-prose py-6 sm:py-8">
             <p className="text-muted-foreground text-center text-xs font-medium tracking-widest uppercase">
               Built for sellers on
             </p>
-            <div className="text-muted-foreground/80 mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 text-sm font-medium">
+            <div className="text-muted-foreground/80 mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium sm:mt-6 sm:gap-x-12 sm:gap-y-4">
               <span>Etsy</span>
               <span>Shopify</span>
               <span>Amazon</span>
@@ -98,20 +100,20 @@ export default function HomePage() {
         </section>
 
         {/* Problem / value */}
-        <section className="container-prose py-20 md:py-28">
+        <section className="container-prose py-16 sm:py-20 md:py-28">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-3xl font-semibold tracking-tight text-balance md:text-4xl">
+            <h2 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl md:text-4xl">
               Listings live or die on the first photo.
             </h2>
-            <p className="text-muted-foreground mt-6 text-lg text-balance">
+            <p className="text-muted-foreground mt-5 text-base text-balance sm:mt-6 sm:text-lg">
               You know your product is good. The phone shot on your kitchen table doesn&apos;t show
               it. A real photo shoot costs $200 to $2,000 and takes a week. ProductShot gives you
               twelve professional shots in under a minute, for less than the cost of one.
             </p>
           </div>
 
-          <div className="mx-auto mt-16 grid max-w-5xl gap-6 md:grid-cols-3">
-            <div className="border-border/60 bg-card rounded-xl border p-6">
+          <div className="mx-auto mt-12 grid max-w-5xl gap-4 sm:mt-16 sm:gap-6 md:grid-cols-3">
+            <div className="border-border/60 bg-card rounded-xl border p-5 sm:p-6">
               <div className="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-lg">
                 <Clock className="h-5 w-5" />
               </div>
@@ -122,7 +124,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="border-border/60 bg-card rounded-xl border p-6">
+            <div className="border-border/60 bg-card rounded-xl border p-5 sm:p-6">
               <div className="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-lg">
                 <Camera className="h-5 w-5" />
               </div>
@@ -133,7 +135,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="border-border/60 bg-card rounded-xl border p-6">
+            <div className="border-border/60 bg-card rounded-xl border p-5 sm:p-6">
               <div className="bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-lg">
                 <Zap className="h-5 w-5" />
               </div>
@@ -146,18 +148,21 @@ export default function HomePage() {
         </section>
 
         {/* How it works */}
-        <section id="how-it-works" className="border-border/40 bg-muted/30 border-t py-20 md:py-28">
+        <section
+          id="how-it-works"
+          className="border-border/40 bg-muted/30 border-t py-16 sm:py-20 md:py-28"
+        >
           <div className="container-prose">
             <div className="mx-auto max-w-3xl text-center">
-              <p className="text-primary text-sm font-medium tracking-widest uppercase">
+              <p className="text-primary text-xs font-medium tracking-widest uppercase sm:text-sm">
                 How it works
               </p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance md:text-4xl">
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-balance sm:text-3xl md:text-4xl">
                 Three steps. One minute. Done.
               </h2>
             </div>
 
-            <div className="mx-auto mt-16 grid max-w-5xl gap-6 md:grid-cols-3">
+            <div className="mx-auto mt-12 grid max-w-5xl gap-4 sm:mt-16 sm:gap-6 md:grid-cols-3">
               {[
                 {
                   step: '01',
@@ -181,7 +186,10 @@ export default function HomePage() {
                     'Get up to twelve high-resolution photos. List them today on every store you sell on.',
                 },
               ].map(({ step, icon: Icon, title, description }) => (
-                <div key={step} className="border-border/60 bg-card relative rounded-xl border p-6">
+                <div
+                  key={step}
+                  className="border-border/60 bg-card relative rounded-xl border p-5 sm:p-6"
+                >
                   <span className="text-primary font-mono text-xs font-medium tracking-widest">
                     {step}
                   </span>
@@ -196,24 +204,26 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Examples placeholder */}
-        <section id="examples" className="container-prose py-20 md:py-28">
+        {/* Examples */}
+        <section id="examples" className="container-prose py-16 sm:py-20 md:py-28">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-primary text-sm font-medium tracking-widest uppercase">Examples</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance md:text-4xl">
+            <p className="text-primary text-xs font-medium tracking-widest uppercase sm:text-sm">
+              Examples
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-balance sm:text-3xl md:text-4xl">
               Real photos. Real sellers. Real listings.
             </h2>
-            <p className="text-muted-foreground mt-6 text-lg text-balance">
+            <p className="text-muted-foreground mt-5 text-base text-balance sm:mt-6 sm:text-lg">
               The gallery goes here once we&apos;ve generated the first set. We&apos;ll build it in
               the next phase.
             </p>
           </div>
 
-          <div className="mx-auto mt-12 grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mx-auto mt-10 grid max-w-5xl grid-cols-2 gap-3 sm:mt-12 sm:gap-4 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="border-border/60 bg-muted/40 aspect-square rounded-xl border"
+                className="border-border/60 bg-muted/40 aspect-square rounded-lg border sm:rounded-xl"
                 aria-hidden="true"
               />
             ))}
@@ -221,20 +231,25 @@ export default function HomePage() {
         </section>
 
         {/* Pricing */}
-        <section id="pricing" className="border-border/40 bg-muted/30 border-t py-20 md:py-28">
+        <section
+          id="pricing"
+          className="border-border/40 bg-muted/30 border-t py-16 sm:py-20 md:py-28"
+        >
           <div className="container-prose">
             <div className="mx-auto max-w-3xl text-center">
-              <p className="text-primary text-sm font-medium tracking-widest uppercase">Pricing</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance md:text-4xl">
+              <p className="text-primary text-xs font-medium tracking-widest uppercase sm:text-sm">
+                Pricing
+              </p>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-balance sm:text-3xl md:text-4xl">
                 Pay for photos. Not subscriptions you forget about.
               </h2>
-              <p className="text-muted-foreground mt-6 text-lg text-balance">
+              <p className="text-muted-foreground mt-5 text-base text-balance sm:mt-6 sm:text-lg">
                 Three free generations on signup. After that, buy a pack or go monthly. No
                 contracts, no hidden charges.
               </p>
             </div>
 
-            <div className="mx-auto mt-16 grid max-w-5xl gap-6 md:grid-cols-3">
+            <div className="mx-auto mt-12 grid max-w-5xl gap-4 sm:mt-16 sm:gap-6 md:grid-cols-3">
               {[
                 {
                   name: 'Starter',
@@ -277,7 +292,7 @@ export default function HomePage() {
               ].map((plan) => (
                 <div
                   key={plan.name}
-                  className={`relative rounded-2xl border p-6 ${
+                  className={`relative rounded-2xl border p-5 sm:p-6 ${
                     plan.highlight
                       ? 'border-primary bg-card shadow-primary/10 shadow-lg'
                       : 'border-border/60 bg-card'
@@ -290,11 +305,13 @@ export default function HomePage() {
                   )}
                   <h3 className="text-lg font-semibold">{plan.name}</h3>
                   <p className="text-muted-foreground mt-1 text-sm">{plan.description}</p>
-                  <div className="mt-6 flex items-baseline gap-1">
-                    <span className="text-4xl font-semibold tracking-tight">{plan.price}</span>
+                  <div className="mt-5 flex items-baseline gap-1 sm:mt-6">
+                    <span className="text-3xl font-semibold tracking-tight sm:text-4xl">
+                      {plan.price}
+                    </span>
                     <span className="text-muted-foreground text-sm">{plan.unit}</span>
                   </div>
-                  <ul className="mt-6 space-y-3 text-sm">
+                  <ul className="mt-5 space-y-2.5 text-sm sm:mt-6 sm:space-y-3">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-2">
                         <Check className="text-primary mt-0.5 h-4 w-4 shrink-0" />
@@ -304,7 +321,7 @@ export default function HomePage() {
                   </ul>
                   <Button
                     asChild
-                    className="mt-8 w-full"
+                    className="mt-6 w-full sm:mt-8"
                     variant={plan.highlight ? 'default' : 'outline'}
                   >
                     <Link href="/#pricing">{plan.cta}</Link>
@@ -316,16 +333,18 @@ export default function HomePage() {
         </section>
 
         {/* FAQ */}
-        <section id="faq" className="container-prose py-20 md:py-28">
+        <section id="faq" className="container-prose py-16 sm:py-20 md:py-28">
           <div className="mx-auto max-w-3xl">
             <div className="text-center">
-              <p className="text-primary text-sm font-medium tracking-widest uppercase">FAQ</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-balance md:text-4xl">
+              <p className="text-primary text-xs font-medium tracking-widest uppercase sm:text-sm">
+                FAQ
+              </p>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-balance sm:text-3xl md:text-4xl">
                 Questions sellers actually ask.
               </h2>
             </div>
 
-            <dl className="mt-12 space-y-8">
+            <dl className="mt-10 space-y-6 sm:mt-12 sm:space-y-8">
               {[
                 {
                   q: 'Will the AI keep my product looking like my product?',
@@ -352,9 +371,9 @@ export default function HomePage() {
                   a: 'Generated photos stay in your account so you can re-download them. You can delete any photo or your entire history at any time.',
                 },
               ].map(({ q, a }) => (
-                <div key={q} className="border-border/40 border-b pb-8">
+                <div key={q} className="border-border/40 border-b pb-6 sm:pb-8">
                   <dt className="font-semibold">{q}</dt>
-                  <dd className="text-muted-foreground mt-3">{a}</dd>
+                  <dd className="text-muted-foreground mt-2 text-sm sm:mt-3 sm:text-base">{a}</dd>
                 </div>
               ))}
             </dl>
@@ -363,16 +382,16 @@ export default function HomePage() {
 
         {/* Final CTA */}
         <section className="border-border/40 bg-muted/30 border-t">
-          <div className="container-prose py-20 md:py-28">
-            <div className="border-border/60 bg-card mx-auto max-w-3xl rounded-2xl border p-10 text-center md:p-16">
-              <h2 className="text-3xl font-semibold tracking-tight text-balance md:text-4xl">
+          <div className="container-prose py-16 sm:py-20 md:py-28">
+            <div className="border-border/60 bg-card mx-auto max-w-3xl rounded-2xl border p-8 text-center sm:p-10 md:p-16">
+              <h2 className="text-2xl font-semibold tracking-tight text-balance sm:text-3xl md:text-4xl">
                 Your next listing deserves better photos.
               </h2>
-              <p className="text-muted-foreground mt-6 text-lg text-balance">
+              <p className="text-muted-foreground mt-5 text-base text-balance sm:mt-6 sm:text-lg">
                 Three free generations. No credit card. See what your product looks like in a real
                 photo studio in sixty seconds.
               </p>
-              <div className="mt-10">
+              <div className="mt-8 sm:mt-10">
                 <Button asChild size="lg">
                   <Link href="/#pricing">
                     Generate my first photos
