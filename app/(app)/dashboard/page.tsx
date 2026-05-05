@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { ChevronRight, History, Sparkles } from 'lucide-react';
 
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
@@ -26,13 +28,24 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
     .maybeSingle();
 
+  const { data: recentGenerations } = await supabase
+    .from('generations')
+    .select('id, status, output_image_urls, created_at')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(3);
+
+  const balance = credits?.balance ?? 0;
+
   return (
-    <div className="container-prose py-12 md:py-16">
+    <div className="container-prose py-10 md:py-14">
       <div className="mx-auto max-w-3xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">Dashboard</h1>
-            <p className="text-muted-foreground mt-2">Signed in as {user.email}</p>
+            <p className="text-muted-foreground mt-2 text-sm sm:text-base">
+              Signed in as {user.email}
+            </p>
           </div>
 
           <form action={signOutAction}>
@@ -42,21 +55,84 @@ export default async function DashboardPage() {
           </form>
         </div>
 
-        <div className="border-border/60 bg-card mt-10 rounded-xl border p-6">
-          <p className="text-muted-foreground text-sm font-medium tracking-wide uppercase">
-            Credits
-          </p>
-          <p className="mt-2 text-4xl font-semibold tracking-tight">{credits?.balance ?? 0}</p>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {credits?.lifetime_earned ?? 0} earned · {credits?.lifetime_spent ?? 0} spent
-          </p>
+        {/* Credits + primary CTA */}
+        <div className="border-primary/30 from-primary/5 to-primary/10 mt-10 rounded-2xl border bg-gradient-to-br p-6 sm:p-8">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-muted-foreground text-xs font-medium tracking-widest uppercase">
+                Credits
+              </p>
+              <p className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">{balance}</p>
+              <p className="text-muted-foreground mt-1 text-sm">
+                {credits?.lifetime_earned ?? 0} earned · {credits?.lifetime_spent ?? 0} spent
+              </p>
+            </div>
+            <Sparkles className="text-primary h-8 w-8" />
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Button asChild size="lg">
+              <Link href="/generate">
+                <Sparkles className="mr-2 h-4 w-4" />
+                Generate photos
+              </Link>
+            </Button>
+            {balance < 5 && (
+              <Button asChild variant="outline" size="lg">
+                <Link href="/#pricing">Top up credits</Link>
+              </Button>
+            )}
+          </div>
         </div>
 
-        <div className="border-border/60 bg-muted/30 mt-6 rounded-xl border p-6">
-          <p className="text-sm">
-            The generation feature ships next. For now, this confirms your account works and your 3
-            free credits are sitting safely in the database.
-          </p>
+        {/* Recent generations */}
+        <div className="mt-10">
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-xl font-semibold tracking-tight">Recent generations</h2>
+            <Link
+              href="/history"
+              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm"
+            >
+              See all <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          {recentGenerations && recentGenerations.length > 0 ? (
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              {recentGenerations.map((gen) => (
+                <Link
+                  key={gen.id}
+                  href={`/history#${gen.id}`}
+                  className="border-border/60 bg-card hover:border-border block aspect-square overflow-hidden rounded-xl border transition-colors"
+                >
+                  {gen.output_image_urls?.[0] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={gen.output_image_urls[0]}
+                      alt="Generated"
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="text-muted-foreground flex h-full items-center justify-center text-xs">
+                      {gen.status}
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="border-border/60 bg-muted/30 mt-4 flex flex-col items-center rounded-xl border p-10 text-center">
+              <History className="text-muted-foreground/50 h-10 w-10" />
+              <p className="mt-4 font-medium">No generations yet</p>
+              <p className="text-muted-foreground mt-1 max-w-sm text-sm">
+                Upload a product photo and generate your first set of professional shots.
+              </p>
+              <Button asChild className="mt-6">
+                <Link href="/generate">Generate your first photos</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
