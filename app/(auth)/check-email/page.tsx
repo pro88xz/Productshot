@@ -4,16 +4,59 @@ import { Mail, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Check your email',
-  description: 'We sent you a magic link to sign in.',
+  description: 'We sent you a link.',
   robots: { index: false, follow: false },
 };
 
 type Props = {
-  searchParams: Promise<{ email?: string }>;
+  searchParams: Promise<{ email?: string; reset?: string; confirm?: string }>;
 };
 
 export default async function CheckEmailPage({ searchParams }: Props) {
-  const { email } = await searchParams;
+  const { email, reset, confirm } = await searchParams;
+
+  let title = 'Check your email';
+  let subtitle: React.ReactNode;
+
+  if (reset) {
+    title = 'Reset link sent';
+    subtitle = (
+      <>
+        We sent a password reset link to{' '}
+        {email ? (
+          <span className="text-foreground font-medium">{email}</span>
+        ) : (
+          'your email address'
+        )}
+        . Click it to set a new password.
+      </>
+    );
+  } else if (confirm) {
+    title = 'Confirm your email';
+    subtitle = (
+      <>
+        We sent a confirmation link to{' '}
+        {email ? (
+          <span className="text-foreground font-medium">{email}</span>
+        ) : (
+          'your email address'
+        )}
+        . Click it to activate your account.
+      </>
+    );
+  } else {
+    subtitle = (
+      <>
+        We sent a magic link to{' '}
+        {email ? (
+          <span className="text-foreground font-medium">{email}</span>
+        ) : (
+          'your email address'
+        )}
+        . Click the link to {email ? 'continue' : 'sign in'}.
+      </>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-6 py-12">
@@ -29,17 +72,9 @@ export default async function CheckEmailPage({ searchParams }: Props) {
           <Mail className="h-7 w-7" />
         </div>
 
-        <h1 className="mt-6 text-2xl font-semibold tracking-tight">Check your email</h1>
+        <h1 className="mt-6 text-2xl font-semibold tracking-tight">{title}</h1>
 
-        <p className="text-muted-foreground mt-3 text-sm">
-          We sent a magic link to{' '}
-          {email ? (
-            <span className="text-foreground font-medium">{email}</span>
-          ) : (
-            'your email address'
-          )}
-          . Click the link to {email ? 'continue' : 'sign in'}.
-        </p>
+        <p className="text-muted-foreground mt-3 text-sm">{subtitle}</p>
 
         <p className="text-muted-foreground mt-6 text-xs">
           Didn&apos;t get it? Check your spam folder, or{' '}

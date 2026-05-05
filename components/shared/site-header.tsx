@@ -12,10 +12,10 @@ export async function SiteHeader() {
   } = await supabase.auth.getUser();
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
+    <header className="border-border/40 bg-background/80 sticky top-0 z-40 w-full border-b backdrop-blur-md">
       <div className="container-prose flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <span className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-lg">
             <Sparkles className="h-4 w-4" />
           </span>
           <span className="text-lg">ProductShot</span>
@@ -24,25 +24,25 @@ export async function SiteHeader() {
         <nav className="hidden items-center gap-8 md:flex" aria-label="Main navigation">
           <Link
             href="/#how-it-works"
-            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
             How it works
           </Link>
           <Link
             href="/#examples"
-            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
             Examples
           </Link>
           <Link
             href="/#pricing"
-            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
             Pricing
           </Link>
           <Link
             href="/#faq"
-            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
             FAQ
           </Link>
