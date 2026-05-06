@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 
 import {
@@ -278,18 +278,7 @@ export function GenerateClient({ initialBalance, userEmail }: GenerateClientProp
           )}
 
           {/* Step 3: Generating */}
-          {step === 'generating' && (
-            <div className="mt-16 flex flex-col items-center justify-center text-center">
-              <div className="bg-primary/10 text-primary flex h-16 w-16 items-center justify-center rounded-full">
-                <Loader2 className="h-7 w-7 animate-spin" />
-              </div>
-              <h2 className="mt-6 text-2xl font-semibold tracking-tight">Generating your photos</h2>
-              <p className="text-muted-foreground mt-2 max-w-md text-sm">
-                This usually takes 30 to 60 seconds. Don&apos;t close the tab — your photos will
-                appear here when ready.
-              </p>
-            </div>
-          )}
+          {step === 'generating' && <GeneratingProgress sceneCount={selectedSceneIds.length} />}
 
           {/* Step 4: Results */}
           {step === 'results' && (
@@ -456,6 +445,57 @@ function ResultCard({ url, index }: ResultCardProps) {
           Download
         </span>
       </a>
+    </div>
+  );
+}
+
+type GeneratingProgressProps = {
+  sceneCount: number;
+};
+
+function GeneratingProgress({ sceneCount }: GeneratingProgressProps) {
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    const start = Date.now();
+    const id = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - start) / 1000));
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const expectedSeconds = Math.max(30, sceneCount * 25);
+  const progress = Math.min(95, Math.round((elapsed / expectedSeconds) * 100));
+  const minutes = Math.floor(elapsed / 60);
+  const seconds = elapsed % 60;
+  const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+  return (
+    <div className="mt-12 flex flex-col items-center justify-center text-center sm:mt-16">
+      <div className="bg-primary/10 text-primary flex h-16 w-16 items-center justify-center rounded-full">
+        <Loader2 className="h-7 w-7 animate-spin" />
+      </div>
+      <h2 className="mt-6 text-2xl font-semibold tracking-tight">Generating your photos</h2>
+      <p className="text-muted-foreground mt-2 max-w-md text-sm">
+        Working on {sceneCount} {sceneCount === 1 ? 'scene' : 'scenes'}. Don&apos;t close the tab.
+      </p>
+
+      <div className="mt-8 w-full max-w-sm">
+        <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
+          <div
+            className="bg-primary h-full transition-all duration-1000 ease-linear"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="text-muted-foreground mt-3 flex items-center justify-between text-xs">
+          <span>{timeStr} elapsed</span>
+          <span>~{expectedSeconds}s expected</span>
+        </div>
+      </div>
+
+      <p className="text-muted-foreground/70 mt-8 max-w-sm text-xs">
+        AI is matching the scene to your product. Larger jobs take longer.
+      </p>
     </div>
   );
 }

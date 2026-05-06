@@ -12,16 +12,8 @@ type PaymentReceiptArgs = {
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://theproductshot.com';
 
 export function buildPaymentReceipt(args: PaymentReceiptArgs) {
-  const {
-
-    recipientName,
-    planName,
-    creditsGranted,
-    newBalance,
-    amountUsd,
-    transactionId,
-    paidAt,
-  } = args;
+  const { recipientName, planName, creditsGranted, newBalance, amountUsd, transactionId, paidAt } =
+    args;
 
   const greeting = recipientName ? `Hi ${recipientName.split(' ')[0]},` : 'Hi,';
   const dateStr = paidAt.toLocaleDateString('en-US', {
