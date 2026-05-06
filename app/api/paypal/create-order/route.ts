@@ -50,6 +50,25 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Reuse a recent pending order for this user + plan if one exists (within 15 minutes)
+  const adminEarly = createAdminClient();
+  const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  const { data: reusablePayment } = await adminEarly
+    .from('payments')
+    .select('paypal_order_id')
+    .eq('user_id', user.id)
+    .eq('kind', plan.kind)
+    .eq('status', 'pending')
+    .gte('created_at', fifteenMinutesAgo)
+    .not('paypal_order_id', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (reusablePayment?.paypal_order_id) {
+    return NextResponse.json({ order_id: reusablePayment.paypal_order_id });
+  }
+
   // Create the PayPal order
   const orderBody: OrderRequest = {
     intent: CheckoutPaymentIntent.Capture,
