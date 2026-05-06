@@ -6,6 +6,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { paypalOrders } from '@/lib/paypal/client';
 import { grantCredits, getCredits } from '@/lib/credits';
 import { getPlan, type PlanKind } from '@/lib/paypal/plans';
+import { resend, FROM_EMAIL, REPLY_TO } from '@/lib/email/resend';
+import { buildPaymentReceipt } from '@/lib/email/templates/payment-receipt';
 
 const requestSchema = z.object({
   order_id: z.string().min(1),
@@ -132,6 +134,32 @@ export async function POST(request: NextRequest) {
     .eq('id', payment.id);
 
   const credits = await getCredits(user.id);
+
+  // Send receipt email (don't block if it fails)
+  try {
+    if (user.email) {
+      const { subject, html, text } = buildPaymentReceipt({
+        recipientEmail: user.email,
+        recipientName: user.user_metadata?.full_name as string | undefined,
+        planName: plan.name,
+        creditsGranted: plan.credits,
+        newBalance: credits.balance,
+        amountUsd: plan.amountUsd,
+        transactionId: captureId ?? order_id,
+        paidAt: new Date(),
+      });
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to: user.email,
+        replyTo: REPLY_TO,
+        subject,
+        html,
+        text,
+      });
+    }
+  } catch (err) {
+    console.error('Receipt email failed:', err);
+  }
 
   return NextResponse.json({
     status: 'completed',
