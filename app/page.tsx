@@ -10,6 +10,12 @@ import {
   Wand2,
   Zap,
 } from 'lucide-react';
+import {
+  EtsyLogo,
+  ShopifyLogo,
+  AmazonWordmark,
+  TikTokShopWordmark,
+} from '@/components/shared/platform-logos';
 
 import { Button } from '@/components/ui/button';
 import { SiteHeader } from '@/components/shared/site-header';
@@ -87,14 +93,11 @@ export default function HomePage() {
             <p className="text-muted-foreground text-center text-xs font-medium tracking-widest uppercase">
               Built for sellers on
             </p>
-            <div className="text-muted-foreground/80 mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium sm:mt-6 sm:gap-x-12 sm:gap-y-4">
-              <span>Etsy</span>
-              <span>Shopify</span>
-              <span>Amazon</span>
-              <span>TikTok Shop</span>
-              <span>eBay</span>
-              <span>Depop</span>
-              <span>Poshmark</span>
+            <div className="max-w-2l mx-auto mt-6 grid grid-cols-2 items-center justify-items-center gap-x-8 gap-y-6 sm:mt-8 sm:grid-cols-4">
+              <EtsyLogo />
+              <ShopifyLogo />
+              <AmazonWordmark />
+              <TikTokShopWordmark />
             </div>
           </div>
         </section>
