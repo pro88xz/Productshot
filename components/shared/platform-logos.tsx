@@ -79,7 +79,13 @@ export function AmazonWordmark() {
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 54 12"
         aria-hidden="true"
-        className="absolute -bottom-1.5 left-0.5 h-2 w-[calc(100%-1px)]"
+        style={{
+          position: 'absolute',
+          bottom: '-0.4em',
+          left: '0.1em',
+          right: '0.1em',
+          height: '0.5em',
+        }}
       >
         <path
           fill="none"
