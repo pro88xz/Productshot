@@ -214,23 +214,41 @@ export default function HomePage() {
               Examples
             </p>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight text-balance sm:text-3xl md:text-4xl">
-              Real photos. Real sellers. Real listings.
+              One photo. Every scene you can imagine.
             </h2>
             <p className="text-muted-foreground mt-5 text-base text-balance sm:mt-6 sm:text-lg">
-              The gallery goes here once we&apos;ve generated the first set. We&apos;ll build it in
-              the next phase.
+              Same vinyl record. Three completely different aesthetics. Generated from one phone
+              photo in seconds.
             </p>
           </div>
-
-          <div className="mx-auto mt-10 grid max-w-5xl grid-cols-2 gap-3 sm:mt-12 sm:gap-4 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="border-border/60 bg-muted/40 aspect-square rounded-lg border sm:rounded-xl"
-                aria-hidden="true"
-              />
+          <div className="mx-auto mt-10 grid max-w-5xl gap-4 sm:mt-12 sm:gap-6 md:grid-cols-3">
+            {[
+              { src: '/landing/vinyl-wood.jpg', label: 'Wood shelf' },
+              { src: '/landing/vinyl-dark.jpg', label: 'Moody' },
+              { src: '/landing/vinyl-white.jpg', label: 'Studio white' },
+            ].map((scene) => (
+              <figure
+                key={scene.label}
+                className="border-border/60 bg-card overflow-hidden rounded-xl border"
+              >
+                <div className="bg-muted/40 aspect-square overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={scene.src}
+                    alt={`Vinyl record in ${scene.label} scene`}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+                <figcaption className="border-border/40 border-t px-4 py-3 text-sm font-medium">
+                  {scene.label}
+                </figcaption>
+              </figure>
             ))}
           </div>
+          <p className="text-muted-foreground mt-8 text-center text-sm sm:mt-10">
+            One phone photo uploaded. Three scenes generated.
+          </p>
         </section>
 
         {/* Pricing */}
