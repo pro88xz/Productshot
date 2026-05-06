@@ -3,7 +3,7 @@
  * Server-side source of truth — never trust prices from the client.
  */
 
-export type PlanKind = 'test_dollar' | 'starter_pack' | 'pro_pack' | 'studio_subscription';
+export type PlanKind = 'starter_pack' | 'pro_pack' | 'studio_subscription';
 
 export type Plan = {
   kind: PlanKind;
@@ -16,15 +16,6 @@ export type Plan = {
 };
 
 export const PLANS: Record<PlanKind, Plan> = {
-  test_dollar: {
-    kind: 'test_dollar',
-    name: 'Test ($1)',
-    description: '1 dollar verification purchase',
-    amountUsd: '1.00',
-    amountCents: 100,
-    credits: 2,
-    isSubscription: false,
-  },
   starter_pack: {
     kind: 'starter_pack',
     name: 'Starter pack',
