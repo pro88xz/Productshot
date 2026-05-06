@@ -15,7 +15,7 @@ import { getPlan } from '@/lib/paypal/plans';
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://theproductshot.com';
 
 const requestSchema = z.object({
-  plan_kind: z.enum(['starter_pack', 'pro_pack']),
+  plan_kind: z.enum(['test_dollar', 'starter_pack', 'pro_pack']),
 });
 
 export async function POST(request: NextRequest) {
