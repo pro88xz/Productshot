@@ -75,26 +75,18 @@ export function AmazonWordmark() {
       }}
     >
       amazon
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 54 12"
+      <span
         aria-hidden="true"
         style={{
           position: 'absolute',
-          bottom: '-0.4em',
-          left: '0.1em',
-          right: '0.1em',
+          bottom: '-0.45em',
+          left: '5%',
+          right: '5%',
           height: '0.5em',
+          borderBottom: '0.18em solid #FF9900',
+          borderRadius: '0 0 50% 50% / 0 0 100% 100%',
         }}
-      >
-        <path
-          fill="none"
-          stroke="#FF9900"
-          strokeWidth="3"
-          strokeLinecap="round"
-          d="M1 9c4 4 11 7 26 7s22-3 26-7"
-        />
-      </svg>
+      />
     </span>
   );
 }
