@@ -79,7 +79,7 @@ export default async function DashboardPage() {
             </Button>
             {balance < 5 && (
               <Button asChild variant="outline" size="lg">
-                <Link href="/#pricing">Top up credits</Link>
+                <Link href="/pricing">Top up credits</Link>
               </Button>
             )}
           </div>
