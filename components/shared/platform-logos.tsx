@@ -90,7 +90,7 @@ export function AmazonWordmark() {
         <path
           fill="none"
           stroke="#FF9900"
-          strokeWidth="2"
+          strokeWidth="3"
           strokeLinecap="round"
           d="M1 9c4 4 11 7 26 7s22-3 26-7"
         />
@@ -110,7 +110,7 @@ export function TikTokShopWordmark() {
           fontSize: '1.375rem',
           letterSpacing: '-0.03em',
           lineHeight: 1,
-          textShadow: '0.03em 0.03em 0 #FE2C55, -0.03em -0.03em 0 #25F4EE',
+          textShadow: '0.06em 0.06em 0 #FE2C55, -0.06em -0.06em 0 #25F4EE',
         }}
       >
         TikTok
