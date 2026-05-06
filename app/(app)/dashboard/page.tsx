@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ChevronRight, History, Sparkles } from 'lucide-react';
+import { ChevronRight, Sparkles } from 'lucide-react';
 
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
@@ -122,11 +122,14 @@ export default async function DashboardPage() {
               ))}
             </div>
           ) : (
-            <div className="border-border/60 bg-muted/30 mt-4 flex flex-col items-center rounded-xl border p-10 text-center">
-              <History className="text-muted-foreground/50 h-10 w-10" />
-              <p className="mt-4 font-medium">No generations yet</p>
-              <p className="text-muted-foreground mt-1 max-w-sm text-sm">
-                Upload a product photo and generate your first set of professional shots.
+            <div className="border-border/60 from-primary/5 via-card to-card mt-4 flex flex-col items-center rounded-xl border bg-gradient-to-br p-10 text-center">
+              <div className="from-primary/15 to-primary/5 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br">
+                <Sparkles className="text-primary h-6 w-6" />
+              </div>
+              <p className="mt-5 text-base font-semibold">Ready when you are</p>
+              <p className="text-muted-foreground mt-1.5 max-w-sm text-sm">
+                Upload a product photo and we&apos;ll generate a full set of professional shots in
+                under a minute.
               </p>
               <Button asChild className="mt-6">
                 <Link href="/generate">Generate your first photos</Link>

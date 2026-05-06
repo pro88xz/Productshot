@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowLeft, History as HistoryIcon, Sparkles } from 'lucide-react';
+import { ArrowLeft, Sparkles } from 'lucide-react';
 
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
@@ -84,11 +84,13 @@ export default async function HistoryPage() {
           </p>
 
           {!generations || generations.length === 0 ? (
-            <div className="border-border/60 bg-muted/30 mt-10 flex flex-col items-center rounded-xl border p-12 text-center">
-              <HistoryIcon className="text-muted-foreground/50 h-10 w-10" />
-              <p className="mt-4 font-medium">No generations yet</p>
-              <p className="text-muted-foreground mt-1 max-w-sm text-sm">
-                Once you generate photos, they&apos;ll show up here.
+            <div className="border-border/60 from-primary/5 via-card to-card mt-10 flex flex-col items-center rounded-xl border bg-gradient-to-br p-12 text-center">
+              <div className="from-primary/15 to-primary/5 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br">
+                <Sparkles className="text-primary h-6 w-6" />
+              </div>
+              <p className="mt-5 text-base font-semibold">Nothing here yet</p>
+              <p className="text-muted-foreground mt-1.5 max-w-sm text-sm">
+                Your generated photos will land here. Each one stays for re-download anytime.
               </p>
               <Button asChild className="mt-6">
                 <Link href="/generate">Generate your first photos</Link>
