@@ -6,7 +6,7 @@ import { AuthForm } from '@/components/shared/auth-form';
 
 export const metadata: Metadata = {
   title: 'Create your account',
-  description: 'Sign up for ProductShot AI. Three free generations on signup.',
+  description: 'Sign up for ProductShot. Three free generations on signup.',
   alternates: { canonical: '/sign-up' },
 };
 

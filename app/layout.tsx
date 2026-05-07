@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
   display: 'swap',
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://productshot.ai';
-const SITE_NAME = 'ProductShot AI';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://theproductshot.com';
+const SITE_NAME = 'ProductShot';
 const SITE_DESCRIPTION =
   'Turn one phone photo into a full set of professional product photos. Studio backgrounds, lifestyle scenes, marble, wood, and more — generated in seconds. Built for Etsy, Shopify, Amazon and TikTok Shop sellers.';
 

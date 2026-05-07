@@ -6,7 +6,7 @@ import { AuthForm } from '@/components/shared/auth-form';
 
 export const metadata: Metadata = {
   title: 'Sign in',
-  description: 'Sign in to your ProductShot AI account.',
+  description: 'Sign in to your ProductShot account.',
   alternates: { canonical: '/sign-in' },
 };
 

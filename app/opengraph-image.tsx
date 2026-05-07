@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'ProductShot AI — Professional product photos from a single phone shot';
+export const alt = 'ProductShot — Professional product photos from a single phone shot';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 

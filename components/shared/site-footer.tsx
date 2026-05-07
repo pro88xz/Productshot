@@ -67,7 +67,7 @@ export function SiteFooter() {
               </li>
               <li>
                 <Link
-                  href="mailto:hello@productshot.ai"
+                  href="mailto:hello@theproductshot.com"
                   className="hover:text-foreground transition-colors"
                 >
                   Contact
@@ -79,7 +79,7 @@ export function SiteFooter() {
 
         <div className="border-border/40 mt-12 flex flex-col items-start justify-between gap-4 border-t pt-8 sm:flex-row sm:items-center">
           <p className="text-muted-foreground text-xs">
-            © {year} ProductShot AI. All rights reserved.
+            © {year} ProductShot. All rights reserved.
           </p>
           <p className="text-muted-foreground text-xs">
             Made for sellers who&apos;d rather ship than stage.

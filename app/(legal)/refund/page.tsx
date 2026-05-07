@@ -6,7 +6,7 @@ import { SiteFooter } from '@/components/shared/site-footer';
 
 export const metadata: Metadata = {
   title: 'Refund Policy',
-  description: 'Our refund policy for ProductShot AI. Honest, fair, and clear.',
+  description: 'Our refund policy for ProductShot. Honest, fair, and clear.',
   alternates: { canonical: '/refund' },
 };
 
@@ -75,8 +75,11 @@ export default function RefundPage() {
                 <h2 className="text-2xl font-semibold tracking-tight">How to request a refund</h2>
                 <p className="text-muted-foreground mt-4">
                   Email{' '}
-                  <Link href="mailto:hello@productshot.ai" className="text-foreground underline">
-                    hello@productshot.ai
+                  <Link
+                    href="mailto:hello@theproductshot.com"
+                    className="text-foreground underline"
+                  >
+                    hello@theproductshot.com
                   </Link>{' '}
                   with the email address on your account and what you&apos;d like refunded. We reply
                   within 2 business days.

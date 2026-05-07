@@ -7,7 +7,7 @@ import { SiteFooter } from '@/components/shared/site-footer';
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description:
-    'How ProductShot AI collects, uses, and protects your data. Plain English, no surprises.',
+    'How ProductShot collects, uses, and protects your data. Plain English, no surprises.',
   alternates: { canonical: '/privacy' },
 };
 
@@ -24,8 +24,8 @@ export default function PrivacyPage() {
             </h1>
             <p className="text-muted-foreground mt-6 text-lg">
               We try to keep this readable. If anything is unclear, email{' '}
-              <Link href="mailto:hello@productshot.ai" className="text-foreground underline">
-                hello@productshot.ai
+              <Link href="mailto:hello@theproductshot.com" className="text-foreground underline">
+                hello@theproductshot.com
               </Link>{' '}
               and we&apos;ll explain.
             </p>
@@ -96,7 +96,7 @@ export default function PrivacyPage() {
               <section>
                 <h2 className="text-2xl font-semibold tracking-tight">Children</h2>
                 <p className="text-muted-foreground mt-4">
-                  ProductShot AI is not intended for use by anyone under 16. We don&apos;t knowingly
+                  ProductShot is not intended for use by anyone under 16. We don&apos;t knowingly
                   collect data from children.
                 </p>
               </section>
@@ -113,8 +113,11 @@ export default function PrivacyPage() {
                 <h2 className="text-2xl font-semibold tracking-tight">Contact</h2>
                 <p className="text-muted-foreground mt-4">
                   Questions, complaints, or data requests: email{' '}
-                  <Link href="mailto:hello@productshot.ai" className="text-foreground underline">
-                    hello@productshot.ai
+                  <Link
+                    href="mailto:hello@theproductshot.com"
+                    className="text-foreground underline"
+                  >
+                    hello@theproductshot.com
                   </Link>
                   .
                 </p>

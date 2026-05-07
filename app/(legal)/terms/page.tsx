@@ -6,7 +6,7 @@ import { SiteFooter } from '@/components/shared/site-footer';
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: 'The rules of using ProductShot AI. Plain English, no fine print traps.',
+  description: 'The rules of using ProductShot. Plain English, no fine print traps.',
   alternates: { canonical: '/terms' },
 };
 
@@ -22,17 +22,16 @@ export default function TermsPage() {
               Terms of Service
             </h1>
             <p className="text-muted-foreground mt-6 text-lg">
-              By using ProductShot AI, you agree to these terms. We&apos;ve kept them short and
-              honest.
+              By using ProductShot, you agree to these terms. We&apos;ve kept them short and honest.
             </p>
 
             <div className="prose prose-neutral dark:prose-invert mt-12 max-w-none space-y-10">
               <section>
                 <h2 className="text-2xl font-semibold tracking-tight">What we offer</h2>
                 <p className="text-muted-foreground mt-4">
-                  ProductShot AI takes a photo you upload and generates new photos of the same
-                  product in different scenes using AI image generation. You buy credits or
-                  subscribe and use them to generate photos.
+                  ProductShot takes a photo you upload and generates new photos of the same product
+                  in different scenes using AI image generation. You buy credits or subscribe and
+                  use them to generate photos.
                 </p>
               </section>
 
@@ -136,8 +135,11 @@ export default function TermsPage() {
                 <h2 className="text-2xl font-semibold tracking-tight">Contact</h2>
                 <p className="text-muted-foreground mt-4">
                   Anything unclear? Email{' '}
-                  <Link href="mailto:hello@productshot.ai" className="text-foreground underline">
-                    hello@productshot.ai
+                  <Link
+                    href="mailto:hello@theproductshot.com"
+                    className="text-foreground underline"
+                  >
+                    hello@theproductshot.com
                   </Link>
                   .
                 </p>

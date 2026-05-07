@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       },
     ],
     applicationContext: {
-      brandName: 'ProductShot AI',
+      brandName: 'ProductShot',
       landingPage: OrderApplicationContextLandingPage.NoPreference,
       userAction: OrderApplicationContextUserAction.PayNow,
       returnUrl: `${SITE_URL}/pricing/success`,
