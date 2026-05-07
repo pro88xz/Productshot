@@ -50,6 +50,11 @@ export async function SiteHeader() {
 
         <div className="flex items-center gap-1.5 sm:gap-2">
           <ThemeToggle />
+          {user && user.email?.toLowerCase() === 'secretsafe.cc@gmail.com' ? (
+            <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
+              <Link href="/admin">Admin</Link>
+            </Button>
+          ) : null}
           {user ? (
             <Button asChild size="sm">
               <Link href="/dashboard">Dashboard</Link>
