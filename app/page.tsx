@@ -70,18 +70,15 @@ export default function HomePage() {
 
             {/* Hero visual placeholder */}
             <div className="relative mx-auto mt-12 max-w-5xl sm:mt-16">
-              <div className="border-border/60 bg-muted/40 shadow-primary/5 aspect-[4/3] overflow-hidden rounded-xl border shadow-xl sm:aspect-[16/10] sm:rounded-2xl sm:shadow-2xl">
-                <div className="flex h-full items-center justify-center">
-                  <div className="px-6 text-center">
-                    <ImageIcon className="text-muted-foreground/40 mx-auto h-10 w-10 sm:h-12 sm:w-12" />
-                    <p className="text-muted-foreground mt-3 text-sm sm:mt-4">
-                      Before / After gallery loads here
-                    </p>
-                    <p className="text-muted-foreground/60 mt-1 text-xs">
-                      (We&apos;ll wire this up in the next build phase)
-                    </p>
-                  </div>
-                </div>
+              <div className="border-border/60 bg-card shadow-primary/5 aspect-[4/3] overflow-hidden rounded-xl border shadow-xl sm:aspect-[16/10] sm:rounded-2xl sm:shadow-2xl">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/landing/vinyl-wood.jpg"
+                  alt="Vinyl record on a warm wood shelf, generated from a phone photo by ProductShot"
+                  className="h-full w-full object-cover"
+                  loading="eager"
+                  fetchPriority="high"
+                />
               </div>
             </div>
           </div>
