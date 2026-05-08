@@ -7,9 +7,7 @@ const fs = require('fs');
 
   const sizes = [16, 32, 48];
   const pngBuffers = await Promise.all(
-    sizes.map((s) =>
-      sharp(svg, { density: 600 }).resize(s, s).png().toBuffer()
-    )
+    sizes.map((s) => sharp(svg, { density: 600 }).resize(s, s).png().toBuffer()),
   );
 
   const icoBuffer = await toIco(pngBuffers);

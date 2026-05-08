@@ -127,9 +127,7 @@ export function GenerateClient({ initialBalance, userEmail }: GenerateClientProp
     if (!sourceImageUrl || selectedSceneIds.length === 0) return;
 
     if (selectedSceneIds.length > balance) {
-      setGenerateError(
-        `You need ${selectedSceneIds.length} credits but only have ${balance}. Reduce your selection or top up.`,
-      );
+      setGenerateError(`You need ${selectedSceneIds.length} credits but only have ${balance}.`);
       return;
     }
 
@@ -185,6 +183,14 @@ export function GenerateClient({ initialBalance, userEmail }: GenerateClientProp
               <Sparkles className="h-3.5 w-3.5" />
               {balance} {balance === 1 ? 'credit' : 'credits'}
             </span>
+            {balance === 0 && (
+              <Link
+                href="/pricing"
+                className="text-primary hover:text-primary/80 hidden text-sm font-medium underline underline-offset-2 sm:inline"
+              >
+                Top up
+              </Link>
+            )}
             <form action={signOutAction}>
               <Button type="submit" variant="ghost" size="sm">
                 Sign out
@@ -252,7 +258,15 @@ export function GenerateClient({ initialBalance, userEmail }: GenerateClientProp
               {generateError && (
                 <div className="border-destructive/40 bg-destructive/5 text-destructive flex items-start gap-2 rounded-lg border p-4 text-sm">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                  <span>{generateError}</span>
+                  <div className="flex flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                    <span>{generateError}</span>
+                    <Link
+                      href="/pricing"
+                      className="text-destructive hover:text-destructive/80 shrink-0 font-medium underline underline-offset-2"
+                    >
+                      Top up credits →
+                    </Link>
+                  </div>
                 </div>
               )}
 
