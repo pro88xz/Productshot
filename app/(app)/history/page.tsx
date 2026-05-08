@@ -6,6 +6,7 @@ import { ArrowLeft, Sparkles } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
 import { DeleteGenerationButton } from '@/components/app/delete-generation-button';
+import { FeatureToggleButton } from '@/components/app/feature-toggle-button';
 import { signOutAction } from '@/app/(auth)/actions';
 import { SCENE_STYLES } from '@/lib/replicate/scenes';
 
@@ -43,11 +44,14 @@ export default async function HistoryPage() {
 
   const { data: generations } = await supabase
     .from('generations')
-    .select('id, status, output_image_urls, scene_styles, credits_used, created_at, completed_at')
+    .select(
+      'id, status, output_image_urls, scene_styles, credits_used, created_at, completed_at, is_featured',
+    )
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(50);
 
+  const isAdmin = user.email?.toLowerCase() === 'secretsafe.cc@gmail.com';
   const balance = credits?.balance ?? 0;
 
   return (
@@ -122,6 +126,12 @@ export default async function HistoryPage() {
                           )}
                         </p>
                       </div>
+                      {isAdmin && (
+                        <FeatureToggleButton
+                          generationId={gen.id}
+                          initialFeatured={Boolean(gen.is_featured)}
+                        />
+                      )}
                       <DeleteGenerationButton generationId={gen.id} />
                     </div>
 
