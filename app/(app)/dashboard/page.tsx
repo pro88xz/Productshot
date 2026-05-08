@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ChevronRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Sparkles } from 'lucide-react';
 
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
@@ -44,7 +44,14 @@ export default async function DashboardPage() {
       <div className="mx-auto max-w-3xl">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">Dashboard</h1>
+            <Link
+              href="/"
+              className="text-muted-foreground hover:text-foreground -ml-1 inline-flex items-center gap-1 text-sm transition-colors"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Home
+            </Link>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">Dashboard</h1>
             <p className="text-muted-foreground mt-2 text-sm sm:text-base">
               Signed in as {user.email}
             </p>
