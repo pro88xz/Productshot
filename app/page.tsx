@@ -295,7 +295,7 @@ export default async function HomePage() {
                 Pay for photos. Not subscriptions you forget about.
               </h2>
               <p className="text-muted-foreground mt-5 text-base text-balance sm:mt-6 sm:text-lg">
-                Three free generations on signup. After that, buy a pack or go monthly. No
+                Three free generations on signup. After that, buy a pack when you need more. No
                 contracts, no hidden charges.
               </p>
             </div>
@@ -328,16 +328,16 @@ export default async function HomePage() {
                 {
                   name: 'Studio',
                   price: '$39',
-                  unit: '/ month',
+                  unit: 'one-time',
                   description: 'For sellers shipping new SKUs constantly.',
                   features: [
-                    '200 generated photos / month',
+                    '200 generated photos',
                     'All scene styles',
                     'High-resolution download',
                     'Priority queue',
-                    'Cancel anytime',
+                    'Credits never expire',
                   ],
-                  cta: 'Start Studio',
+                  cta: 'Buy studio pack',
                   highlight: false,
                 },
               ].map((plan) => (
@@ -403,7 +403,7 @@ export default async function HomePage() {
                 },
                 {
                   q: 'What does it cost to generate one set?',
-                  a: 'A Starter pack ($9) covers 20 images. A Pro pack ($19) covers 50 images. Studio ($39/month) gives you 200 images monthly — best for sellers launching multiple SKUs.',
+                  a: 'A Starter pack ($9) covers 20 images. A Pro pack ($19) covers 50 images. A Studio pack ($39) covers 200 images — best for sellers launching multiple SKUs.',
                 },
                 {
                   q: 'Can I use the photos on Etsy, Amazon, Shopify?',

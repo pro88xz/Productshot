@@ -15,7 +15,7 @@ type PricingClientProps = {
   paypalClientId: string;
 };
 
-const ONE_TIME_PLANS: PlanKind[] = ['starter_pack', 'pro_pack'];
+const ONE_TIME_PLANS: PlanKind[] = ['starter_pack', 'pro_pack', 'studio_pack'];
 
 export function PricingClient({ paypalClientId }: PricingClientProps) {
   const [activeKind, setActiveKind] = useState<PlanKind | null>(null);
@@ -152,46 +152,6 @@ export function PricingClient({ paypalClientId }: PricingClientProps) {
             </div>
           );
         })}
-
-        {/* Studio subscription — coming in next batch */}
-        <div className="border-border/60 bg-muted/30 relative flex flex-col rounded-2xl border p-6">
-          <h3 className="text-lg font-semibold">Studio</h3>
-          <p className="text-muted-foreground mt-1 text-sm">
-            For sellers shipping new SKUs constantly.
-          </p>
-
-          <div className="mt-6 flex items-baseline gap-1">
-            <span className="text-4xl font-semibold tracking-tight">$39</span>
-            <span className="text-muted-foreground text-sm">/ month</span>
-          </div>
-
-          <ul className="mt-6 space-y-3 text-sm">
-            <li className="flex items-start gap-2">
-              <Check className="text-primary mt-0.5 h-4 w-4 shrink-0" />
-              <span>
-                <strong>200</strong> photos per month
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <Check className="text-primary mt-0.5 h-4 w-4 shrink-0" />
-              <span>Priority queue</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <Check className="text-primary mt-0.5 h-4 w-4 shrink-0" />
-              <span>Cancel anytime</span>
-            </li>
-          </ul>
-
-          <div className="mt-auto pt-6">
-            <button
-              type="button"
-              disabled
-              className="border-border/60 bg-background text-muted-foreground w-full cursor-not-allowed rounded-md border py-2.5 text-sm font-medium"
-            >
-              Coming soon
-            </button>
-          </div>
-        </div>
       </div>
 
       {error && (

@@ -3,7 +3,7 @@
  * Server-side source of truth — never trust prices from the client.
  */
 
-export type PlanKind = 'starter_pack' | 'pro_pack' | 'studio_subscription';
+export type PlanKind = 'starter_pack' | 'pro_pack' | 'studio_pack';
 
 export type Plan = {
   kind: PlanKind;
@@ -34,14 +34,14 @@ export const PLANS: Record<PlanKind, Plan> = {
     credits: 50,
     isSubscription: false,
   },
-  studio_subscription: {
-    kind: 'studio_subscription',
-    name: 'Studio subscription',
-    description: '200 credits per month',
+  studio_pack: {
+    kind: 'studio_pack',
+    name: 'Studio pack',
+    description: '200 credits — for sellers shipping new SKUs constantly',
     amountUsd: '39.00',
     amountCents: 3900,
     credits: 200,
-    isSubscription: true,
+    isSubscription: false,
   },
 };
 
