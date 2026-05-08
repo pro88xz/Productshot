@@ -121,14 +121,6 @@ const websiteSchema = {
   '@type': 'WebSite',
   name: SITE_NAME,
   url: SITE_URL,
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: {
-      '@type': 'EntryPoint',
-      urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
-    },
-    'query-input': 'required name=search_term_string',
-  },
 };
 
 const softwareApplicationSchema = {
@@ -141,13 +133,6 @@ const softwareApplicationSchema = {
     '@type': 'Offer',
     price: '9',
     priceCurrency: 'USD',
-  },
-  aggregateRating: {
-    '@type': 'AggregateRating',
-    ratingValue: '4.9',
-    ratingCount: '1',
-    bestRating: '5',
-    worstRating: '1',
   },
 };
 
