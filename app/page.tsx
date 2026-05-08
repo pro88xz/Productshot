@@ -53,7 +53,7 @@ export default function HomePage() {
 
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row">
                 <Button asChild size="lg" className="w-full sm:w-auto">
-                  <Link href="/#pricing">
+                  <Link href="/sign-up">
                     Generate my photos
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </Link>
@@ -342,7 +342,7 @@ export default function HomePage() {
                     className="mt-6 w-full sm:mt-8"
                     variant={plan.highlight ? 'default' : 'outline'}
                   >
-                    <Link href="/#pricing">{plan.cta}</Link>
+                    <Link href="/sign-up">{plan.cta}</Link>
                   </Button>
                 </div>
               ))}
@@ -411,7 +411,7 @@ export default function HomePage() {
               </p>
               <div className="mt-8 sm:mt-10">
                 <Button asChild size="lg">
-                  <Link href="/#pricing">
+                  <Link href="/sign-up">
                     Generate my first photos
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </Link>
