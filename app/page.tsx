@@ -10,6 +10,10 @@ import {
   Wand2,
   Zap,
 } from 'lucide-react';
+
+import { createClient } from '@/lib/supabase/server';
+import { FeaturedSlideshow, type FeaturedSlide } from '@/components/shared/featured-slideshow';
+import { SCENE_STYLES } from '@/lib/replicate/scenes';
 import {
   EtsyLogo,
   ShopifyLogo,
@@ -21,7 +25,30 @@ import { Button } from '@/components/ui/button';
 import { SiteHeader } from '@/components/shared/site-header';
 import { SiteFooter } from '@/components/shared/site-footer';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient();
+  const { data: featured } = await supabase
+    .from('generations')
+    .select('id, scene_styles, output_image_urls')
+    .eq('is_featured', true)
+    .eq('status', 'completed')
+    .order('featured_at', { ascending: false })
+    .limit(12);
+
+  const slides: FeaturedSlide[] = (featured ?? []).flatMap((gen) => {
+    const sceneIds = (gen.scene_styles as string[] | null) ?? [];
+    const outputs = (gen.output_image_urls as string[] | null) ?? [];
+    return outputs.map((_, i) => {
+      const sceneId = sceneIds[i] ?? sceneIds[0];
+      const scene = SCENE_STYLES.find((s) => s.id === sceneId);
+      return {
+        url: `/api/featured-image/${gen.id}/${i}`,
+        alt: `Generated product photo in ${scene?.name ?? 'scene'} style`,
+        label: scene?.name ?? 'Generated',
+      };
+    });
+  });
+
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
@@ -71,14 +98,20 @@ export default function HomePage() {
             {/* Hero visual placeholder */}
             <div className="relative mx-auto mt-12 max-w-5xl sm:mt-16">
               <div className="border-border/60 bg-card shadow-primary/5 aspect-[4/3] overflow-hidden rounded-xl border shadow-xl sm:aspect-[16/10] sm:rounded-2xl sm:shadow-2xl">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/landing/vinyl-wood.jpg"
-                  alt="Vinyl record on a warm wood shelf, generated from a phone photo by ProductShot"
-                  className="h-full w-full object-cover"
-                  loading="eager"
-                  fetchPriority="high"
-                />
+                {slides.length > 0 ? (
+                  <FeaturedSlideshow slides={slides} />
+                ) : (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/landing/vinyl-wood.jpg"
+                      alt="Vinyl record on a warm wood shelf, generated from a phone photo by ProductShot"
+                      className="h-full w-full object-cover"
+                      loading="eager"
+                      fetchPriority="high"
+                    />
+                  </>
+                )}
               </div>
             </div>
           </div>
