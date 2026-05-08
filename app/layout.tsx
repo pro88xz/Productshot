@@ -93,6 +93,9 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.webmanifest',
   category: 'technology',
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+  },
 };
 
 export const viewport: Viewport = {
