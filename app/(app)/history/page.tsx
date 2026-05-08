@@ -5,6 +5,7 @@ import { ArrowLeft, Sparkles } from 'lucide-react';
 
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
+import { DeleteGenerationButton } from '@/components/app/delete-generation-button';
 import { signOutAction } from '@/app/(auth)/actions';
 import { SCENE_STYLES } from '@/lib/replicate/scenes';
 
@@ -107,7 +108,7 @@ export default async function HistoryPage() {
 
                 return (
                   <section key={gen.id} id={gen.id}>
-                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
                         <p className="text-sm font-medium">{sceneNames || 'Generation'}</p>
                         <p className="text-muted-foreground text-xs">
@@ -121,6 +122,7 @@ export default async function HistoryPage() {
                           )}
                         </p>
                       </div>
+                      <DeleteGenerationButton generationId={gen.id} />
                     </div>
 
                     {outputs.length > 0 ? (
