@@ -30,22 +30,32 @@ export type BlogPostMeta = {
   frontmatter: BlogPostFrontmatter;
 };
 
-function ensureBlogDir() {
-  if (!fs.existsSync(BLOG_DIR)) {
-    fs.mkdirSync(BLOG_DIR, { recursive: true });
+function blogDirExists(): boolean {
+  try {
+    return fs.existsSync(BLOG_DIR) && fs.statSync(BLOG_DIR).isDirectory();
+  } catch {
+    return false;
   }
 }
 
 export function getAllPostSlugs(): string[] {
-  ensureBlogDir();
-  return fs
-    .readdirSync(BLOG_DIR)
-    .filter((file) => file.endsWith('.md'))
-    .map((file) => file.replace(/\.md$/, ''));
+  if (!blogDirExists()) {
+    return [];
+  }
+  try {
+    return fs
+      .readdirSync(BLOG_DIR)
+      .filter((file) => file.endsWith('.md'))
+      .map((file) => file.replace(/\.md$/, ''));
+  } catch {
+    return [];
+  }
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
-  ensureBlogDir();
+  if (!blogDirExists()) {
+    return null;
+  }
   const filePath = path.join(BLOG_DIR, `${slug}.md`);
   if (!fs.existsSync(filePath)) {
     return null;
@@ -65,7 +75,6 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
 }
 
 export function getAllPostsMeta(): BlogPostMeta[] {
-  ensureBlogDir();
   const slugs = getAllPostSlugs();
   const posts: BlogPostMeta[] = slugs
     .map((slug) => {
