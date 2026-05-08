@@ -415,7 +415,7 @@ export default async function HomePage() {
                 },
                 {
                   q: 'How long does it take?',
-                  a: 'Most sets generate in 30 to 60 seconds. Studio plan users skip the queue.',
+                  a: 'Most sets generate in 30 to 60 seconds. Studio pack buyers skip the queue.',
                 },
                 {
                   q: 'Do you store my photos?',
