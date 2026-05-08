@@ -11,7 +11,7 @@ import {
   Zap,
 } from 'lucide-react';
 
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { FeaturedSlideshow, type FeaturedSlide } from '@/components/shared/featured-slideshow';
 import { SCENE_STYLES } from '@/lib/replicate/scenes';
 import {
@@ -26,8 +26,8 @@ import { SiteHeader } from '@/components/shared/site-header';
 import { SiteFooter } from '@/components/shared/site-footer';
 
 export default async function HomePage() {
-  const supabase = await createClient();
-  const { data: featured } = await supabase
+  const admin = createAdminClient();
+  const { data: featured } = await admin
     .from('generations')
     .select('id, scene_styles, output_image_urls')
     .eq('is_featured', true)
