@@ -8,15 +8,18 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get('next') ?? '/dashboard';
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/sign-in?error=missing_code`);
+    return NextResponse.redirect(`${origin}/sign-in?error=missing_code`, 303);
   }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
-    return NextResponse.redirect(`${origin}/sign-in?error=${encodeURIComponent(error.message)}`);
+    return NextResponse.redirect(
+      `${origin}/sign-in?error=${encodeURIComponent(error.message)}`,
+      303,
+    );
   }
 
-  return NextResponse.redirect(`${origin}${next}`);
+  return NextResponse.redirect(`${origin}${next}`, 303);
 }

@@ -6,6 +6,7 @@ import { ChevronRight, Sparkles } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
 import { signOutAction } from '@/app/(auth)/actions';
+import { HistoryFix } from '@/components/app/history-fix';
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -39,6 +40,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="container-prose py-10 md:py-14">
+      <HistoryFix />
       <div className="mx-auto max-w-3xl">
         <div className="flex items-start justify-between gap-4">
           <div>
