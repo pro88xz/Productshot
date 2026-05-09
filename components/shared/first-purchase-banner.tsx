@@ -17,11 +17,15 @@ type FirstPurchaseBannerProps = {
 
 export function FirstPurchaseBanner({ hasUserPurchased }: FirstPurchaseBannerProps) {
   const [dismissed, setDismissed] = useState<boolean | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const isDismissed = sessionStorage.getItem(STORAGE_KEY) === '1';
     setDismissed(isDismissed);
+    // Trigger slide-down on next frame so the transition runs
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
   }, []);
 
   // Don't render anything until we know the dismissal state (avoids hydration mismatch + flash)
@@ -39,9 +43,9 @@ export function FirstPurchaseBanner({ hasUserPurchased }: FirstPurchaseBannerPro
   };
 
   return (
-    <div className="bg-primary text-primary-foreground relative">
+    <div className={`bg-primary text-primary-foreground relative transition-transform duration-500 ease-out ${mounted ? 'translate-y-0' : '-translate-y-full'}`}>
       <div className="container-prose flex items-center justify-center gap-2 py-2 text-sm sm:text-[0.95rem]">
-        <Sparkles className="h-4 w-4 shrink-0" aria-hidden="true" />
+        <Sparkles className="h-4 w-4 shrink-0 animate-pulse" aria-hidden="true" />
         <span className="text-center">
           <span className="hidden sm:inline">First-time customer? </span>
           Get <strong>5 bonus credits</strong> on any pack.{' '}
