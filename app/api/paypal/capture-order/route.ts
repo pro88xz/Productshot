@@ -120,14 +120,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid plan on payment record' }, { status: 500 });
   }
 
-  await grantCredits(user.id, plan.credits);
+  // First-purchase bonus: 5 extra credits on first paid pack.
+  // signup grants 3, so lifetime_earned <= 3 means no prior purchase.
+  const { data: priorCredits } = await admin
+    .from('credits')
+    .select('lifetime_earned')
+    .eq('user_id', user.id)
+    .maybeSingle();
+  const isFirstPurchase = (priorCredits?.lifetime_earned ?? 0) <= 3;
+  const bonusCredits = isFirstPurchase ? 5 : 0;
+  const totalCredits = plan.credits + bonusCredits;
+
+  await grantCredits(user.id, totalCredits);
 
   // Mark payment complete
   await admin
     .from('payments')
     .update({
       status: 'completed',
-      credits_granted: plan.credits,
+      credits_granted: totalCredits,
       paypal_capture_id: captureId,
       completed_at: new Date().toISOString(),
     })
@@ -142,7 +153,7 @@ export async function POST(request: NextRequest) {
         recipientEmail: user.email,
         recipientName: user.user_metadata?.full_name as string | undefined,
         planName: plan.name,
-        creditsGranted: plan.credits,
+        creditsGranted: totalCredits,
         newBalance: credits.balance,
         amountUsd: plan.amountUsd,
         transactionId: captureId ?? order_id,
@@ -163,7 +174,8 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     status: 'completed',
-    credits_granted: plan.credits,
+    credits_granted: totalCredits,
+    bonus_credits: bonusCredits,
     remaining_credits: credits.balance,
   });
 }

@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/shared/theme-provider';
 import './globals.css';
 
+import { createClient } from '@/lib/supabase/server';
+import { FirstPurchaseBanner } from '@/components/shared/first-purchase-banner';
+
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -153,11 +156,29 @@ const softwareApplicationSchema = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Determine first-purchase eligibility server-side.
+  // Signed-out: hasUserPurchased is undefined (generic banner shown).
+  // Signed-in: true if user has bought before (banner hidden), false otherwise.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let hasUserPurchased: boolean | undefined = undefined;
+  if (user) {
+    const { data: credits } = await supabase
+      .from('credits')
+      .select('lifetime_earned')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    hasUserPurchased = (credits?.lifetime_earned ?? 0) > 3;
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -187,6 +208,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <FirstPurchaseBanner hasUserPurchased={hasUserPurchased} />
           {children}
         </ThemeProvider>
       </body>
