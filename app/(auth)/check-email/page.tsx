@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Mail, Sparkles } from 'lucide-react';
+import { Mail } from 'lucide-react';
+import { LensIcon } from '@/components/shared/lens-icon';
 
 export const metadata: Metadata = {
   title: 'Check your email',
@@ -62,9 +63,7 @@ export default async function CheckEmailPage({ searchParams }: Props) {
     <div className="flex min-h-screen flex-col items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm text-center">
         <Link href="/" className="inline-flex items-center justify-center gap-2 font-semibold">
-          <span className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-lg">
-            <Sparkles className="h-4 w-4" />
-          </span>
+          <LensIcon className="h-8 w-8" />
           <span className="text-lg">ProductShot</span>
         </Link>
 

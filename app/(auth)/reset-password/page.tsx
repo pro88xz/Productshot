@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Sparkles } from 'lucide-react';
+import { LensIcon } from '@/components/shared/lens-icon';
 
 import { createClient } from '@/lib/supabase/server';
 import { ResetPasswordForm } from '@/components/shared/reset-password-form';
@@ -27,9 +27,7 @@ export default async function ResetPasswordPage() {
     <div className="flex min-h-screen flex-col items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm">
         <Link href="/" className="flex items-center justify-center gap-2 font-semibold">
-          <span className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-lg">
-            <Sparkles className="h-4 w-4" />
-          </span>
+          <LensIcon className="h-8 w-8" />
           <span className="text-lg">ProductShot</span>
         </Link>
 
