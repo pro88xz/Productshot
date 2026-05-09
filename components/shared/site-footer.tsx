@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Sparkles } from 'lucide-react';
+import { LensIcon } from '@/components/shared/lens-icon';
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
@@ -10,9 +10,7 @@ export function SiteFooter() {
         <div className="grid gap-10 md:grid-cols-4">
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-              <span className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-lg">
-                <Sparkles className="h-4 w-4" />
-              </span>
+              <LensIcon className="h-8 w-8" />
               <span className="text-lg">ProductShot</span>
             </Link>
             <p className="text-muted-foreground mt-4 max-w-md text-sm">

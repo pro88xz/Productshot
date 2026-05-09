@@ -113,17 +113,31 @@ export const viewport: Viewport = {
 const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': `${SITE_URL}/#organization`,
   name: SITE_NAME,
+  alternateName: 'theproductshot',
   url: SITE_URL,
-  logo: `${SITE_URL}/icon.svg`,
+  logo: {
+    '@type': 'ImageObject',
+    url: `${SITE_URL}/icon-512.png`,
+    width: 512,
+    height: 512,
+  },
   sameAs: [],
 };
 
 const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
+  '@id': `${SITE_URL}/#website`,
   name: SITE_NAME,
+  alternateName: 'theproductshot',
   url: SITE_URL,
+  inLanguage: 'en-US',
+  description: SITE_DESCRIPTION,
+  publisher: {
+    '@id': `${SITE_URL}/#organization`,
+  },
 };
 
 const softwareApplicationSchema = {
