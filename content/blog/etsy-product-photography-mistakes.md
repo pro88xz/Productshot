@@ -5,6 +5,8 @@ publishedAt: '2026-05-08'
 author: 'ProductShot'
 tags: ['etsy', 'product photography', 'phone photography', 'selling tips']
 draft: false
+ogTitle: '5 photo mistakes killing your Etsy sales — ProductShot'
+ogDescription: 'The 5 mistakes most Etsy listings have in common, and how to fix them with the phone in your pocket.'
 ---
 
 If your Etsy shop has decent products but sales aren't moving, the photos are probably the bottleneck.

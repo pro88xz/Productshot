@@ -16,6 +16,8 @@ export type BlogPostFrontmatter = {
   tags?: string[];
   cover?: string;
   draft?: boolean;
+  ogTitle?: string;
+  ogDescription?: string;
 };
 
 export type BlogPost = {

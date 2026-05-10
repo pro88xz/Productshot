@@ -31,8 +31,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description: post.frontmatter.description,
     alternates: { canonical: `/blog/${slug}` },
     openGraph: {
-      title: post.frontmatter.title,
-      description: post.frontmatter.description,
+      title: post.frontmatter.ogTitle ?? post.frontmatter.title,
+      description: post.frontmatter.ogDescription ?? post.frontmatter.description,
       url,
       type: 'article',
       publishedTime: post.frontmatter.publishedAt,
@@ -42,8 +42,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.frontmatter.title,
-      description: post.frontmatter.description,
+      title: post.frontmatter.ogTitle ?? post.frontmatter.title,
+      description: post.frontmatter.ogDescription ?? post.frontmatter.description,
     },
   };
 }
