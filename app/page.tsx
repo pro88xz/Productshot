@@ -86,23 +86,9 @@ export default async function HomePage() {
                   </Link>
                 </Button>
               </div>
-
               <p className="text-muted-foreground mt-5 text-sm sm:mt-6">
-                3 free generations. No credit card required. Packs from <span className="text-foreground font-medium">$9</span>.
+                3 free generations. No credit card required.
               </p>
-
-              {/* Trust strip: built for sellers on these platforms */}
-              <div className="border-border/40 mt-10 border-t pt-6 sm:mt-12">
-                <p className="text-muted-foreground mb-4 text-center text-xs font-medium tracking-widest uppercase">
-                  Built for sellers on
-                </p>
-                <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 sm:gap-x-12">
-                  <EtsyLogo />
-                  <ShopifyLogo />
-                  <AmazonWordmark />
-                  <TikTokShopWordmark />
-                </div>
-              </div>
             </div>
 
             {/* Hero visual placeholder */}
@@ -127,6 +113,20 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Trusted by / social proof bar */}
+        <section className="border-border/40 bg-muted/30 border-y">
+          <div className="container-prose py-6 sm:py-8">
+            <p className="text-muted-foreground text-center text-xs font-medium tracking-widest uppercase">
+              Built for sellers on
+            </p>
+            <div className="mx-auto mt-6 grid max-w-2xl grid-cols-2 items-center justify-items-center gap-x-8 gap-y-6 sm:mt-8 sm:grid-cols-4">
+              <EtsyLogo />
+              <ShopifyLogo />
+              <AmazonWordmark />
+              <TikTokShopWordmark />
+            </div>
+          </div>
+        </section>
 
         {/* Problem / value */}
         <section className="container-prose py-16 sm:py-20 md:py-28">
