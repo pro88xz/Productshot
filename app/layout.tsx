@@ -21,12 +21,12 @@ const geistMono = Geist_Mono({
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://theproductshot.com';
 const SITE_NAME = 'ProductShot';
 const SITE_DESCRIPTION =
-  'Turn one phone photo into a full set of professional product photos. Studio backgrounds, lifestyle scenes, marble, wood, and more — generated in seconds. Built for Etsy, Shopify, Amazon and TikTok Shop sellers.';
+  'Turn one phone photo into a full set of professional product photos in seconds. Built for Etsy, Shopify, Amazon, and TikTok Shop sellers.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — Professional product photos from a single phone shot`,
+    default: `${SITE_NAME} — Professional product photos from your phone`,
     template: `%s — ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -59,20 +59,20 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: `${SITE_NAME} — Professional product photos from a single phone shot`,
+    title: `${SITE_NAME} — Professional product photos from your phone`,
     description: SITE_DESCRIPTION,
     images: [
       {
         url: '/opengraph-image',
         width: 1200,
         height: 630,
-        alt: `${SITE_NAME} — Professional product photos from a single phone shot`,
+        alt: `${SITE_NAME} — Professional product photos from your phone`,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${SITE_NAME} — Professional product photos from a single phone shot`,
+    title: `${SITE_NAME} — Professional product photos from your phone`,
     description: SITE_DESCRIPTION,
     images: ['/opengraph-image'],
   },
