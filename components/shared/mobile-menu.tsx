@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,11 @@ const NAV_LINKS = [
 
 export function MobileMenu({ isLoggedIn }: MobileMenuProps) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close on escape key
   useEffect(() => {
@@ -53,9 +59,9 @@ export function MobileMenu({ isLoggedIn }: MobileMenuProps) {
         <Menu className="h-5 w-5" />
       </button>
 
-      {/* Slide-out drawer */}
-      {open && (
-        <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true">
+      {/* Slide-out drawer rendered via portal to escape header's stacking context */}
+      {mounted && open && createPortal(
+        <div className="fixed inset-0 z-[100] md:hidden" role="dialog" aria-modal="true">
           {/* Backdrop */}
           <div
             className="bg-background/80 absolute inset-0 backdrop-blur-sm"
@@ -100,7 +106,8 @@ export function MobileMenu({ isLoggedIn }: MobileMenuProps) {
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
