@@ -64,7 +64,7 @@ export function MobileMenu({ isLoggedIn }: MobileMenuProps) {
           />
 
           {/* Panel */}
-          <div className="bg-background border-border/40 absolute top-0 right-0 h-full w-[85%] max-w-sm border-l shadow-xl">
+          <div className="bg-white dark:bg-zinc-950 border-border/40 fixed top-0 right-0 h-full w-[85%] max-w-sm border-l shadow-xl">
             <div className="flex h-16 items-center justify-between border-b border-border/40 px-4">
               <span className="text-lg font-semibold tracking-tight">Menu</span>
               <button
