@@ -98,16 +98,41 @@ export async function POST(request: NextRequest) {
   const failures: { sceneId: string; error: string }[] = [];
 
   try {
+    // Helper: retry Replicate calls with exponential backoff to handle
+    // model cold-starts (idle models take 30-90s to boot, often timing out
+    // the first request before they're warm).
+    const runReplicateWithRetry = async (sceneId: string, prompt: string) => {
+      const delays = [0, 5000, 15000]; // immediate, +5s, +15s
+      let lastError: unknown = null;
+      for (let attempt = 0; attempt < delays.length; attempt++) {
+        if (delays[attempt] > 0) {
+          await new Promise((r) => setTimeout(r, delays[attempt]));
+        }
+        try {
+          return await replicate.run(REPLICATE_MODEL, {
+            input: {
+              prompt,
+              input_image: source_image_url,
+              output_format: 'jpg',
+              safety_tolerance: 2,
+            },
+          });
+        } catch (err) {
+          lastError = err;
+          console.warn(
+            `Replicate attempt ${attempt + 1}/${delays.length} failed for scene ${sceneId}:`,
+            err instanceof Error ? err.message : err,
+          );
+        }
+      }
+      throw lastError instanceof Error
+        ? lastError
+        : new Error('Replicate failed after retries');
+    };
+
     const results = await Promise.allSettled(
       scenes.map(async (scene) => {
-        const output = await replicate.run(REPLICATE_MODEL, {
-          input: {
-            prompt: scene!.prompt,
-            input_image: source_image_url,
-            output_format: 'jpg',
-            safety_tolerance: 2,
-          },
-        });
+        const output = await runReplicateWithRetry(scene!.id, scene!.prompt);
 
         let url: string | null = null;
         if (typeof output === 'string') {
