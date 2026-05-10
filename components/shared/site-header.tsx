@@ -4,6 +4,7 @@ import { LensIcon } from '@/components/shared/lens-icon';
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
+import { MobileMenu } from '@/components/shared/mobile-menu';
 
 export async function SiteHeader() {
   const supabase = await createClient();
@@ -67,6 +68,7 @@ export async function SiteHeader() {
               </Button>
             </>
           )}
+          <MobileMenu isLoggedIn={!!user} />
         </div>
       </div>
     </header>
