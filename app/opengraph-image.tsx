@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'ProductShot — Professional product photos from a single phone shot';
+export const alt = 'ProductShot — Professional product photos from your phone';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -41,16 +41,9 @@ export default async function OpenGraphImage() {
             justifyContent: 'center',
           }}
         >
-          <svg width="36" height="36" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M16 8L17.5 13.5L23 15L17.5 16.5L16 22L14.5 16.5L9 15L14.5 13.5L16 8Z"
-              fill="white"
-            />
-            <path
-              d="M22 19L22.6 21.4L25 22L22.6 22.6L22 25L21.4 22.6L19 22L21.4 21.4L22 19Z"
-              fill="white"
-              opacity="0.7"
-            />
+          <svg width="48" height="48" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="12" fill="none" stroke="white" strokeWidth="3" />
+            <circle cx="16" cy="16" r="5" fill="white" />
           </svg>
         </div>
         <div
