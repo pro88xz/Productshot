@@ -213,7 +213,7 @@ export default async function RootLayout({
         </ThemeProvider>
       <a href='https://www.sideprojectors.com/project/79852/productshot' title='ProductShot is for sale'>
           <img 
-            style={{ position: 'fixed', zIndex: 1000, top: '0', left: '10px', width: '45px', height: 'auto', border: 0, opacity: 0.9 }} 
+            style={{ position: 'fixed', zIndex: 1000, top: '72px', left: '6px', width: '34px', height: 'auto', border: 0, opacity: 0.82, transform: 'rotate(0deg)' }} 
             src='https://www.sideprojectors.com/img/badges/badge_2_red.png' 
             alt='ProductShot is for sale' 
           />
