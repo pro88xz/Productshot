@@ -211,7 +211,7 @@ export default async function RootLayout({
           <FirstPurchaseBanner hasUserPurchased={hasUserPurchased} />
           {children}
         </ThemeProvider>
-      <a href='https://www.sideprojectors.com/project/79852/productshot' alt='ProductShot is for sale at @SideProjectors'><img style='position:fixed;z-index:1000;top:-5px; right: 80px; border: 0;' src='https://www.sideprojectors.com/img/badges/badge_2_red.png' alt='ProductShot is sale at @SideProjectors'></a>
+      <a href='https://www.sideprojectors.com/project/79852/productshot' alt='ProductShot is for sale at @SideProjectors'><img style={{ position: 'fixed', zIndex: 1000, top: '-5px', right: '80px', border: 0 }} src='https://www.sideprojectors.com/img/badges/badge_2_red.png' alt='ProductShot is sale at @SideProjectors'></a>
 </body>
     </html>
   );
