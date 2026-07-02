@@ -61,9 +61,7 @@ export async function verifyWithKimi(input: VerifyInput): Promise<VerificationRe
             text: 'Emit the JSON object now. No preamble. Start with { and end with }.',
           },
         ],
-      },
-      // Prefill: force Kimi to continue from an opening brace so it can't narrate.
-      { role: 'assistant', content: '{"score":' },
+      }
     ],
     max_tokens: 800,
     temperature: 0.1,
@@ -87,7 +85,7 @@ export async function verifyWithKimi(input: VerifyInput): Promise<VerificationRe
   const raw = data.choices?.[0]?.message?.content ?? '';
 
   // We prefilled '{' — Kimi's response starts AFTER that, so prepend it back.
-  const candidate = '{"score":' + raw;
+  const candidate = '{"score": 0.' + raw;
 
   // Try full-string parse first (cleanest)
   const parsed = tryParseJson(candidate) ?? extractFirstJsonObject(candidate);
@@ -125,10 +123,14 @@ function tryParseJson(s: string): ParsedKimi | null {
   }
 }
 
-// Walk the string, find balanced JSON object containing "score"
+// Walk the string, find ALL balanced JSON objects that contain "score",
+// return the LAST successfully parsed one where score is a number.
+// (Reasoning models sometimes emit multiple JSON blocks — draft then final.)
 function extractFirstJsonObject(s: string): ParsedKimi | null {
   let depth = 0;
   let start = -1;
+  let lastValid: ParsedKimi | null = null;
+
   for (let i = 0; i < s.length; i++) {
     const ch = s[i];
     if (ch === '{') {
@@ -140,11 +142,18 @@ function extractFirstJsonObject(s: string): ParsedKimi | null {
         const slice = s.slice(start, i + 1);
         if (slice.includes('"score"')) {
           const parsed = tryParseJson(slice);
-          if (parsed) return parsed;
+          // Only accept parses where "score" is a number (not a nested object)
+          if (parsed && typeof parsed.score === 'number') {
+            lastValid = parsed;
+          } else if (parsed && parsed.score && typeof parsed.score === 'object') {
+            // Kimi wrapped it: {"score": {"score": 0.9, ...}} — unwrap once
+            const inner = parsed.score as ParsedKimi;
+            if (typeof inner.score === 'number') lastValid = inner;
+          }
         }
         start = -1;
       }
     }
   }
-  return null;
+  return lastValid;
 }

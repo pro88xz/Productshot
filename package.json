@@ -11,7 +11,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
     "typecheck": "tsc --noEmit",
-    "smoke:verify": "dotenv -e .env.local -- tsx scripts/smoke/verify.ts"
+    "smoke:verify": "dotenv -e .env.local -- tsx scripts/smoke/verify.ts",
+    "smoke:router": "dotenv -e .env.local -- tsx scripts/smoke/router.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

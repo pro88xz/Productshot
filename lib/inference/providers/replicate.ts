@@ -10,7 +10,7 @@ import { replicate } from '../../replicate/client';
 const REPLICATE_MODEL_ID = 'black-forest-labs/flux-kontext-pro';
 
 /** Replicate SDK now returns URL instances, arrays of URLs, strings, or objects with .url(). */
-function extractUrl(output: unknown): string | null {
+export function extractUrl(output: unknown): string | null {
   if (!output) return null;
   if (typeof output === 'string') return output;
   if (output instanceof URL) return output.href;
@@ -42,6 +42,32 @@ function extractUrl(output: unknown): string | null {
   return null;
 }
 
+
+
+/** Retry Replicate calls on 429 rate-limit responses, respecting retry_after. */
+async function withRateLimitRetry<T>(
+  op: () => Promise<T>,
+  label: string,
+  maxAttempts = 5,
+): Promise<T> {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await op();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const is429 = msg.includes('429') || msg.toLowerCase().includes('throttled');
+      if (!is429 || attempt === maxAttempts) throw err;
+      const retryMatch = msg.match(/"retry_after":\s*(\d+)/);
+      const waitSec = retryMatch ? parseInt(retryMatch[1], 10) + 1 : 5 * attempt;
+      console.log(
+        `  [${label}] rate-limited (attempt ${attempt}/${maxAttempts}), waiting ${waitSec}s...`,
+      );
+      await new Promise((r) => setTimeout(r, waitSec * 1000));
+    }
+  }
+  throw new Error(`${label}: exhausted retries`);
+}
+
 export class ReplicateProvider implements InferenceProvider {
   readonly name = 'replicate' as const;
 
@@ -51,14 +77,18 @@ export class ReplicateProvider implements InferenceProvider {
     const tier: ModelTier = 'kontext-pro';
     const started = Date.now();
 
-    const output = await replicate.run(REPLICATE_MODEL_ID, {
-      input: {
-        prompt: req.prompt,
-        input_image: req.sourceImageUrl,
-        output_format: 'jpg',
-        safety_tolerance: 2,
-      },
-    });
+    const output = await withRateLimitRetry(
+      () =>
+        replicate.run(REPLICATE_MODEL_ID, {
+          input: {
+            prompt: req.prompt,
+            input_image: req.sourceImageUrl,
+            output_format: 'jpg',
+            safety_tolerance: 2,
+          },
+        }),
+      'flux-kontext-pro',
+    );
 
     const outputUrl = extractUrl(output);
     if (!outputUrl) {
