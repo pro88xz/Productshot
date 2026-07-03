@@ -211,13 +211,6 @@ export default async function RootLayout({
           <FirstPurchaseBanner hasUserPurchased={hasUserPurchased} />
           {children}
         </ThemeProvider>
-      <a href='https://www.sideprojectors.com/project/79852/productshot' title='ProductShot is for sale'>
-          <img 
-            style={{ position: 'fixed', zIndex: 1000, top: '84px', left: '8px', width: '30px', height: 'auto', border: 0, opacity: 0.72, transition: 'opacity 0.2s ease' }}
-            src='https://www.sideprojectors.com/img/badges/badge_2_red.png' 
-            alt='ProductShot is for sale' 
-          />
-        </a>
 </body>
     </html>
   );
