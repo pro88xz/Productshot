@@ -1,5 +1,9 @@
 import 'dotenv/config';
+import { randomUUID } from 'node:crypto';
 import { generate } from '../../lib/inference';
+
+const SMOKE_USER_ID = process.env.SMOKE_USER_ID ?? null;
+const SMOKE_GENERATION_ID = process.env.SMOKE_GENERATION_ID ?? null;
 
 interface RunOutput {
   label: string;
@@ -13,14 +17,22 @@ interface RunOutput {
 }
 
 async function runOne(sceneId: string, forcePath?: 'compose' | 'edit'): Promise<RunOutput> {
+  // Test image: clean product with clear background separation
+  // (rembg struggles on the previous watch photo where grey watches sat on grey bg)
   const sourceImageUrl =
-    'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1024&q=80';
+    'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=1024&q=80';
 
-  const { result, decision } = await generate({
-    sourceImageUrl,
-    sceneId,
-    preferredPath: forcePath,
-  });
+  const { result, decision } = await generate(
+    {
+      sourceImageUrl,
+      sceneId,
+      preferredPath: forcePath,
+    },
+    {
+      userId: SMOKE_USER_ID,
+      generationId: SMOKE_GENERATION_ID,
+    },
+  );
 
   return {
     label: `${sceneId} (${decision.path})`,
@@ -101,14 +113,24 @@ async function main() {
     }
   }
 
-  // For data-URI outputs (compose), also save to /tmp for local inspection
+  // Save outputs to /tmp for eyeball review
   const fs = await import('node:fs');
   for (const r of runs) {
+    const path = `/tmp/scaffold-${r.sceneId}.jpg`;
     if (r.outputUrl.startsWith('data:image/jpeg;base64,')) {
       const b64 = r.outputUrl.slice('data:image/jpeg;base64,'.length);
-      const path = `/tmp/scaffold-${r.sceneId}.jpg`;
       fs.writeFileSync(path, Buffer.from(b64, 'base64'));
       console.log(`  saved: ${path}`);
+    } else {
+      // Remote URL — fetch and save so both paths produce a local file
+      try {
+        const res = await fetch(r.outputUrl);
+        const ab = await res.arrayBuffer();
+        fs.writeFileSync(path, Buffer.from(ab));
+        console.log(`  saved: ${path}`);
+      } catch (err) {
+        console.log(`  save failed for ${r.label}: ${err instanceof Error ? err.message : err}`);
+      }
     }
   }
 
