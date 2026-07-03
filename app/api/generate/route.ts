@@ -6,6 +6,10 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { replicate } from '@/lib/replicate/client';
 import { getSceneById, SCENE_STYLES } from '@/lib/replicate/scenes';
 import { deductCredits, refundCredits, getCredits } from '@/lib/credits';
+import {
+  generateOneScene,
+  fetchOrDecodeToBuffer,
+} from '@/lib/inference/route-adapter';
 
 // Configurable — change here if we swap models
 const REPLICATE_MODEL = 'black-forest-labs/flux-kontext-pro';
@@ -130,8 +134,41 @@ export async function POST(request: NextRequest) {
         : new Error('Replicate failed after retries');
     };
 
+    // Feature flag: query param ?scaffold=1 OR env USE_SCAFFOLD_ROUTER=true
+    const scaffoldQueryFlag =
+      request.nextUrl?.searchParams?.get('scaffold') === '1';
+    const scaffoldEnvFlag = process.env.USE_SCAFFOLD_ROUTER === 'true';
+    const useScaffold = scaffoldQueryFlag || scaffoldEnvFlag;
+
+    if (useScaffold) {
+      console.log(
+        `[api/generate] Scaffold routing ON (query=${scaffoldQueryFlag} env=${scaffoldEnvFlag}) for generation ${generationId}`,
+      );
+    }
+
     const results = await Promise.allSettled(
       scenes.map(async (scene) => {
+        // Path A: Scaffold routing (per-scene compose/edit + verify + retry)
+        if (useScaffold) {
+          try {
+            const out = await generateOneScene({
+              userId: user.id,
+              generationId,
+              sourceImageUrl: source_image_url,
+              sceneId: scene!.id,
+              prompt: scene!.prompt,
+            });
+            return { sceneId: scene!.id, url: out.url };
+          } catch (scaffoldErr) {
+            // Production safety — fall through to legacy Replicate.
+            console.warn(
+              `[api/generate] Scaffold path failed for scene ${scene!.id}, falling back to legacy Replicate:`,
+              scaffoldErr instanceof Error ? scaffoldErr.message : scaffoldErr,
+            );
+          }
+        }
+
+        // Path B: Legacy Replicate direct call
         const output = await runReplicateWithRetry(scene!.id, scene!.prompt);
 
         let url: string | null = null;
@@ -215,9 +252,12 @@ export async function POST(request: NextRequest) {
   for (let i = 0; i < outputUrls.length; i++) {
     const replicateUrl = outputUrls[i];
     try {
-      const res = await fetch(replicateUrl);
-      if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
-      const blob = await res.arrayBuffer();
+      // Handle both remote URLs (edit path) and data URIs (compose path)
+      const buffer = await fetchOrDecodeToBuffer(replicateUrl);
+      const blob = buffer.buffer.slice(
+        buffer.byteOffset,
+        buffer.byteOffset + buffer.byteLength,
+      ) as ArrayBuffer;
 
       const storagePath = `${user.id}/generated/${generationId}/${i}.jpg`;
       const { error: uploadErr } = await admin.storage
