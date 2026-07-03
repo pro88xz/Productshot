@@ -1,0 +1,58 @@
+export type ProviderName = 'replicate' | 'fireworks';
+
+export type ModelTier = 'kontext-pro' | 'flux-schnell' | 'compose-hybrid';
+
+export type RenderPath = 'edit' | 'compose';
+
+export interface GenerationRequest {
+  sourceImageUrl: string;
+  sceneId: string;
+  /** Optional explicit prompt — if omitted, router pulls from SCENES config */
+  prompt?: string;
+  preferredPath?: RenderPath;
+}
+
+export interface VerificationResult {
+  score: number;
+  reasoning: string;
+  concerns: string[];
+  verifiedBy: 'kimi-k2p6';
+  latencyMs: number;
+  costUsd: number;
+}
+
+export interface GenerationResult {
+  outputUrl: string;
+  provider: ProviderName;
+  path: RenderPath;
+  tier: ModelTier;
+  costUsd: number;
+  latencyMs: number;
+  wasFallback: boolean;
+  providerRequestId?: string;
+  verification?: VerificationResult;
+  /** Populated by compose path — breakdown of the sub-steps for demo dashboard */
+  composeBreakdown?: {
+    rembgMs: number;
+    sceneGenMs: number;
+    compositeMs: number;
+    rembgCostUsd: number;
+    sceneGenCostUsd: number;
+  };
+}
+
+export interface InferenceProvider {
+  readonly name: ProviderName;
+  generate(req: GenerationRequest): Promise<Omit<GenerationResult, 'path' | 'verification'>>;
+}
+
+export const MODEL_COSTS: Record<ProviderName, Partial<Record<ModelTier, number>>> = {
+  replicate: {
+    'kontext-pro': 0.04,
+    'flux-schnell': 0.003,
+    'compose-hybrid': 0.004, // rembg $0.001 + schnell $0.003
+  },
+  fireworks: {},
+};
+
+export const KIMI_VERIFY_COST_USD = 0.0008;

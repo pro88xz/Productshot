@@ -10,7 +10,12 @@
     "lint:fix": "eslint --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "smoke:verify": "dotenv -e .env.local -- tsx scripts/smoke/verify.ts",
+    "smoke:router": "dotenv -e .env.local -- tsx scripts/smoke/router.ts",
+    "seed:backdrops": "dotenv -e .env.local -- tsx scripts/seed/backdrops.ts",
+    "check:backdrops": "dotenv -e .env.local -- tsx scripts/smoke/backdrop-check.ts",
+    "smoke:retry": "EDIT_MIN_VERIFY_SCORE=0.95 dotenv -e .env.local -- tsx scripts/smoke/router-with-retry.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -45,12 +50,15 @@
     "@types/node": "^20.19.39",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "sharp": "^0.34.5",
     "tailwindcss": "^4",
+    "tsx": "^4.22.4",
     "typescript": "^5"
   }
 }
