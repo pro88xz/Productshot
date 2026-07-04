@@ -23,6 +23,7 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { SiteHeader } from '@/components/shared/site-header';
+import { VerificationProof } from '@/components/shared/verification-proof';
 import { SiteFooter } from '@/components/shared/site-footer';
 
 export default async function HomePage() {
@@ -426,6 +427,8 @@ export default async function HomePage() {
             </dl>
           </div>
         </section>
+
+        <VerificationProof />
 
         {/* Final CTA */}
         <section className="border-border/40 bg-muted/30 border-t">
