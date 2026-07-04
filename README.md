@@ -14,7 +14,7 @@ Scaffold is a compound AI system that powers [ProductShot](https://theproductsho
 |------|------|
 | **Live routing dashboard** | https://theproductshot.com/routing |
 | **Live app** | https://theproductshot.com |
-| **Hackathon PR** | https://github.com/pro88xz/Productshot/pull/1 |
+| **GitHub repo** | https://github.com/pro88xz/Productshot |
 | **Branch** | `main` |
 
 The routing dashboard is public. Judges can see every routing decision made by the system, live, streaming from Postgres.
