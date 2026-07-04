@@ -7,14 +7,20 @@ import type {
 import { ReplicateProvider } from './providers/replicate';
 import { ComposeProvider } from './providers/compose';
 import { verifyWithKimi } from './verify/kimi';
-import { logRoutingEvent } from './telemetry';
 import { getScene } from './scenes';
+import { logRoutingEvent } from './telemetry';
+import { createAdminClient } from '../supabase/admin';
 
 export interface RoutingDecision {
   primaryProvider: ProviderName;
   path: RenderPath;
   reason: string;
   runVerification: boolean;
+}
+
+export interface RouterGenerateOptions {
+  userId?: string | null;
+  generationId?: string | null;
 }
 
 const isEnabled = () => process.env.ENABLE_SCAFFOLD_ROUTER === 'true';
@@ -63,19 +69,46 @@ function resolvePrompt(req: GenerationRequest, path: RenderPath): string {
   return path === 'compose' ? scene.composeScenePrompt : scene.editPrompt;
 }
 
-export interface RouterGenerateOptions {
-  userId?: string | null;
-  generationId?: string | null;
-}
-
 /**
- * Score threshold below which the edit path is considered a failure and the
- * router retries with the compose path as fallback. Compose has guaranteed
- * product preservation by construction, so it's a safe fallback.
+ * Kimi needs a public https URL to fetch the image. The compose path returns a
+ * base64 data URI (efficient for local inline handling). Before verification,
+ * we materialize the data URI to a temporary public URL by uploading it to
+ * Supabase Storage. Called only on compose path — edit path already has a URL.
  */
-const EDIT_MIN_VERIFY_SCORE = parseFloat(
-  process.env.EDIT_MIN_VERIFY_SCORE ?? '0.85',
-);
+async function materializeToUrl(dataUri: string, sceneId: string): Promise<string> {
+  // Parse the data URI: data:image/jpeg;base64,<base64>
+  const match = dataUri.match(/^data:(image\/[a-z]+);base64,(.+)$/);
+  if (!match) {
+    throw new Error(`materializeToUrl: not a valid data URI`);
+  }
+  const [, mime, b64] = match;
+  const buffer = Buffer.from(b64, 'base64');
+
+  // Upload to a scratch path in product-photos bucket
+  const admin = createAdminClient();
+  const path = `scaffold-scratch/${sceneId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+
+  const { error: uploadErr } = await admin.storage
+    .from('product-photos')
+    .upload(path, buffer, { contentType: mime, upsert: true });
+
+  if (uploadErr) {
+    throw new Error(`materializeToUrl upload failed: ${uploadErr.message}`);
+  }
+
+  // Signed URL good for 5 minutes — Kimi will fetch within seconds
+  const { data: signed, error: signErr } = await admin.storage
+    .from('product-photos')
+    .createSignedUrl(path, 60 * 5);
+
+  if (signErr || !signed?.signedUrl) {
+    throw new Error(
+      `materializeToUrl signed URL failed: ${signErr?.message ?? 'no signedUrl'}`,
+    );
+  }
+
+  return signed.signedUrl;
+}
 
 async function runOnePath(
   req: GenerationRequest,
@@ -88,9 +121,15 @@ async function runOnePath(
 
   if (runVerification) {
     try {
+      // If compose gave us a data URI, materialize it to a public URL first
+      // so Kimi can actually fetch the image.
+      const generatedUrlForKimi = result.outputUrl.startsWith('data:')
+        ? await materializeToUrl(result.outputUrl, req.sceneId)
+        : result.outputUrl;
+
       const verification = await verifyWithKimi({
         sourceImageUrl: req.sourceImageUrl,
-        generatedImageUrl: result.outputUrl,
+        generatedImageUrl: generatedUrlForKimi,
       });
       result.verification = verification;
     } catch (err) {
@@ -102,6 +141,15 @@ async function runOnePath(
   }
   return result;
 }
+
+/**
+ * Score threshold below which the edit path is considered a failure and the
+ * router retries with the compose path as fallback. Compose has guaranteed
+ * product preservation by construction, so it's a safe fallback.
+ */
+const EDIT_MIN_VERIFY_SCORE = parseFloat(
+  process.env.EDIT_MIN_VERIFY_SCORE ?? '0.85',
+);
 
 export async function generate(
   req: GenerationRequest,
