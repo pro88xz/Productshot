@@ -61,7 +61,7 @@ export default async function HomePage() {
             <div className="mx-auto max-w-3xl text-center">
               <div className="border-border/60 bg-background/60 text-muted-foreground inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium backdrop-blur">
                 <Sparkles className="text-primary h-3 w-3" />
-                <span>One photo in. Twelve studio shots out.</span>
+                <span>Every photo checked. Every product preserved.</span>
               </div>
 
               <h1 className="mt-5 text-3xl leading-[1.1] font-semibold tracking-tight text-balance sm:mt-6 sm:text-5xl md:text-6xl lg:text-7xl">
