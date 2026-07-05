@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 
 const GUEST_SCENE_ID = 'studio-white';
 
-type Stage = 'idle' | 'uploading' | 'generating' | 'ready' | 'error';
+type Stage = 'idle' | 'reading' | 'generating' | 'ready' | 'error';
 
 interface RoutingMeta {
   path: string;
@@ -19,6 +19,15 @@ interface RoutingMeta {
   latency_ms: number;
   verify_score: number | null;
   verify_passed: boolean | null;
+}
+
+function fileToDataUri(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
 }
 
 export function TryBody() {
@@ -35,30 +44,27 @@ export function TryBody() {
   async function handleFile(file: File) {
     setErrorMsg(null);
 
-    const reader = new FileReader();
-    reader.onload = () => setSourcePreview(reader.result as string);
-    reader.readAsDataURL(file);
-
-    setStage('uploading');
+    // 1. Read file as data URI (also serves as our local preview)
+    setStage('reading');
+    let dataUri: string;
     try {
-      const form = new FormData();
-      form.append('file', file);
-      const uploadRes = await fetch('/api/upload', {
-        method: 'POST',
-        body: form,
-      });
-      if (!uploadRes.ok) {
-        const body = await uploadRes.json().catch(() => ({}));
-        throw new Error(body.error ?? `Upload failed: ${uploadRes.status}`);
-      }
-      const { url: uploadedUrl } = await uploadRes.json();
+      dataUri = await fileToDataUri(file);
+      setSourcePreview(dataUri);
+    } catch (err) {
+      console.error('[/try] file read failed:', err);
+      setErrorMsg('Could not read that file. Try a different photo.');
+      setStage('error');
+      return;
+    }
 
-      setStage('generating');
+    // 2. Send data URI directly to guest generation endpoint — no auth needed
+    setStage('generating');
+    try {
       const genRes = await fetch('/api/guest/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          source_image_url: uploadedUrl,
+          source_image_data_uri: dataUri,
           scene_style_id: GUEST_SCENE_ID,
         }),
       });
@@ -118,10 +124,10 @@ export function TryBody() {
             <UploadZone onFile={handleFile} fileInputRef={fileInput} />
           )}
 
-          {stage === 'uploading' && (
+          {stage === 'reading' && (
             <StatusPanel
-              title="Uploading your photo…"
-              subtitle="This takes a second or two."
+              title="Reading your photo…"
+              subtitle="Just a moment."
               preview={sourcePreview}
             />
           )}

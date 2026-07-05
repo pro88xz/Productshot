@@ -8,40 +8,43 @@ import {
   generateOneScene,
   fetchOrDecodeToBuffer,
 } from '@/lib/inference/route-adapter';
-import { replicate } from '@/lib/replicate/client';
 
 /**
  * Guest generation endpoint.
  *
  * - No auth required
- * - No credit deduction, no persistent user_id
- * - Rate-limited to 1 request per IP per 24h (soft — bypassable by determined attackers)
+ * - Accepts either a public source URL or a base64 data URI (from a browser file upload)
+ * - Rate-limited to 3 requests per IP per 24h (soft, DB-backed)
  * - Runs the SAME scaffold pipeline as authenticated users
- * - Watermarks the output ("ProductShot demo · Sign up to download") before returning
- * - Returns data URIs so nothing gets persisted to Storage
- *
- * Guest sessions are stateless. Signup does not migrate history.
+ * - Watermarks the output before returning it as a data URI
+ * - Guest sessions are stateless; signup does NOT migrate anything
  */
 
-const requestSchema = z.object({
-  source_image_url: z.string().url(),
-  scene_style_id: z.string().min(1),
-});
+const requestSchema = z
+  .object({
+    source_image_url: z.string().url().optional(),
+    source_image_data_uri: z.string().optional(),
+    scene_style_id: z.string().min(1),
+  })
+  .refine(
+    (d) => Boolean(d.source_image_url ?? d.source_image_data_uri),
+    { message: 'Provide either source_image_url or source_image_data_uri.' },
+  );
 
 const MAX_GUEST_GENERATIONS_PER_DAY = 3;
 const WATERMARK_TEXT = 'ProductShot demo · Sign up to download the clean version';
+const SCRATCH_BUCKET = 'product-photos';
+const SCRATCH_PATH_PREFIX = 'guest-scratch';
 
 export const maxDuration = 60;
 
 async function watermarkImage(buffer: Buffer): Promise<Buffer> {
-  // Get image dimensions
   const meta = await sharp(buffer).metadata();
   const width = meta.width ?? 1024;
   const height = meta.height ?? 1024;
 
-  // Watermark strip anchored to bottom-right, dark translucent bar with white text
-  const stripHeight = Math.max(28, Math.floor(height * 0.05));
-  const fontSize = Math.max(12, Math.floor(height * 0.022));
+  const stripHeight = Math.max(32, Math.floor(height * 0.055));
+  const fontSize = Math.max(13, Math.floor(height * 0.024));
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${stripHeight}">
@@ -60,7 +63,7 @@ async function watermarkImage(buffer: Buffer): Promise<Buffer> {
         font-size="${fontSize}"
         font-weight="500"
         text-anchor="end"
-        fill="rgba(255,255,255,0.92)"
+        fill="rgba(255,255,255,0.95)"
         letter-spacing="0.3"
       >${WATERMARK_TEXT}</text>
     </svg>
@@ -78,11 +81,6 @@ async function watermarkImage(buffer: Buffer): Promise<Buffer> {
     .toBuffer();
 }
 
-/**
- * Best-effort rate limiter — checks how many guest_generations rows exist for this
- * IP in the last 24h. Requires a public.guest_generations table (see migration).
- * If the table doesn't exist, the RPC will fail silently and we allow the request.
- */
 async function checkGuestRateLimit(ip: string): Promise<{ allowed: boolean; remaining: number }> {
   try {
     const admin = createAdminClient();
@@ -97,7 +95,6 @@ async function checkGuestRateLimit(ip: string): Promise<{ allowed: boolean; rema
       remaining: Math.max(0, MAX_GUEST_GENERATIONS_PER_DAY - used - 1),
     };
   } catch {
-    // Table doesn't exist yet — allow but warn in dev
     return { allowed: true, remaining: MAX_GUEST_GENERATIONS_PER_DAY - 1 };
   }
 }
@@ -129,6 +126,38 @@ function getClientIp(req: NextRequest): string {
   return '0.0.0.0';
 }
 
+/**
+ * If the browser sent a base64 data URI, upload it to a scratch path so Kimi
+ * (and downstream fetches) can access it via HTTPS. Returns a short-lived
+ * signed URL that expires in 5 minutes.
+ */
+async function materializeSourceToScratchUrl(
+  dataUri: string,
+): Promise<string> {
+  const match = dataUri.match(/^data:(image\/[a-z]+);base64,(.+)$/);
+  if (!match) throw new Error('Invalid image data URI');
+  const [, mime, b64] = match;
+  const buffer = Buffer.from(b64, 'base64');
+
+  const ext = mime.split('/')[1] || 'jpg';
+  const path = `${SCRATCH_PATH_PREFIX}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
+
+  const admin = createAdminClient();
+  const { error: upErr } = await admin.storage
+    .from(SCRATCH_BUCKET)
+    .upload(path, buffer, { contentType: mime, upsert: true });
+  if (upErr) throw new Error(`Scratch upload failed: ${upErr.message}`);
+
+  const { data: signed, error: signErr } = await admin.storage
+    .from(SCRATCH_BUCKET)
+    .createSignedUrl(path, 60 * 5);
+  if (signErr || !signed?.signedUrl) {
+    throw new Error(`Scratch signed URL failed: ${signErr?.message ?? 'no signedUrl'}`);
+  }
+
+  return signed.signedUrl;
+}
+
 export async function POST(request: NextRequest) {
   // 1. Parse body
   let body: unknown;
@@ -146,12 +175,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { source_image_url, scene_style_id } = parsed.data;
+  const { source_image_url, source_image_data_uri, scene_style_id } = parsed.data;
 
   const scene = getSceneById(scene_style_id);
   if (!scene) {
     return NextResponse.json(
-      { error: `Unknown scene: ${scene_style_id}. Valid: ${SCENE_STYLES.map((s) => s.id).join(', ')}` },
+      {
+        error: `Unknown scene: ${scene_style_id}. Valid: ${SCENE_STYLES.map((s) => s.id).join(', ')}`,
+      },
       { status: 400 },
     );
   }
@@ -169,24 +200,42 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 3. Run the scaffold pipeline
+  // 3. If the client sent a data URI, materialize it to a scratch URL
+  let effectiveSourceUrl: string;
+  try {
+    if (source_image_data_uri) {
+      effectiveSourceUrl = await materializeSourceToScratchUrl(source_image_data_uri);
+    } else if (source_image_url) {
+      effectiveSourceUrl = source_image_url;
+    } else {
+      // Should be unreachable due to schema refine
+      return NextResponse.json({ error: 'No source image provided' }, { status: 400 });
+    }
+  } catch (err) {
+    console.error('[api/guest/generate] scratch materialize failed:', err);
+    return NextResponse.json(
+      { error: 'Could not accept your photo — try uploading again.' },
+      { status: 500 },
+    );
+  }
+
+  // 4. Run the scaffold pipeline
   try {
     const out = await generateOneScene({
       userId: 'guest',
       generationId: 'guest-' + Date.now().toString(36),
-      sourceImageUrl: source_image_url,
+      sourceImageUrl: effectiveSourceUrl,
       sceneId: scene.id,
       prompt: scene.prompt,
     });
 
-    // 4. Fetch as buffer + watermark
+    // 5. Fetch as buffer + watermark
     const rawBuffer = await fetchOrDecodeToBuffer(out.url);
     const watermarked = await watermarkImage(rawBuffer);
 
-    // 5. Record for rate limiting
-    void recordGuestGeneration(ip, scene.id, source_image_url, out.costUsd);
+    // 6. Record for rate limiting
+    void recordGuestGeneration(ip, scene.id, effectiveSourceUrl, out.costUsd);
 
-    // 6. Return as data URI
     const dataUri = `data:image/jpeg;base64,${watermarked.toString('base64')}`;
 
     return NextResponse.json({
@@ -195,7 +244,6 @@ export async function POST(request: NextRequest) {
       scene_display_name: scene.name,
       image_data_uri: dataUri,
       remaining_free_generations: rate.remaining,
-      // Small teaser for the pitch — judges see this in the network response
       routing_meta: {
         path: out.path,
         tier: out.tier,
@@ -206,9 +254,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (err) {
-    // Unused variable warning suppression — silence 'replicate' import in some builds
-    void replicate;
-    console.error('[api/guest/generate] failed:', err);
+    console.error('[api/guest/generate] pipeline failed:', err);
     return NextResponse.json(
       {
         error:
