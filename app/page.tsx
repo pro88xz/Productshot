@@ -81,8 +81,8 @@ export default async function HomePage() {
 
               <div className="mt-8 flex justify-center sm:mt-10">
                 <Button asChild size="lg" className="w-full sm:w-auto">
-                  <Link href="/sign-up">
-                    Generate my photos
+                  <Link href="/try">
+                    Try it free →
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </Link>
                 </Button>
