@@ -1,7 +1,5 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
-import type { Database } from '@/types/database';
-
 /**
  * Supabase admin client — uses the service_role key.
  * Bypasses Row-Level Security. NEVER expose to the browser.
@@ -11,7 +9,7 @@ import type { Database } from '@/types/database';
  *   - Trusted admin operations
  */
 export function createAdminClient() {
-  return createSupabaseClient<Database>(
+  return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
