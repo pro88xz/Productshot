@@ -121,4 +121,75 @@ git checkout scaffold-hackathon
 npm install
 ```
 
-Copy `.env.local.hackathon.template` to `.env.local` and fill in:
+Copy `.env.local.hackathon.template` to `.env.local` and fill in:FIREWORKS_API_KEY=...       # fireworks.ai/account/api-keys
+REPLICATE_API_TOKEN=...     # replicate.com/account/api-tokens
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+Optional
+ENABLE_SCAFFOLD_ROUTER=true
+USE_SCAFFOLD_ROUTER=true
+EDIT_MIN_VERIFY_SCORE=0.85
+VERIFICATION_SIMILARITY_THRESHOLD=0.72
+Gemma routing intelligence
+ENABLE_GEMMA_ROUTING=true
+FIREWORKS_GEMMA_MODEL=accounts/<your-fireworks-account>/deployments/<deployment-id>
+GEMMA_ROUTING_CONFIDENCE_FLOOR=0.75Apply the SQL migrations to Supabase from `supabase/migrations/`.
+
+Seed the backdrop library (one-time, ~$0.075 in Replicate credit):
+
+```bash
+npm run seed:backdrops
+```
+
+Run the dev server:
+
+```bash
+npm run dev
+```
+
+---
+
+## Testing the pipeline
+
+```bash
+npm run smoke:verify   # Replicate generate + Kimi verify
+npm run smoke:router   # Per-scene routing, both paths (full pipeline incl. Gemma)
+npm run smoke:gemma    # Gemma routing-intelligence in isolation, free/near-free
+npm run smoke:retry    # Verification-driven self-heal demo
+npm run check:backdrops # Confirm Supabase backdrop library is populated
+```
+
+Each smoke test prints a comparison table with cost, latency, verification score, and Kimi's/Gemma's reasoning.
+
+---
+
+## Running via Docker
+
+```bash
+docker build -t scaffold .
+docker run --env-file .env.local -p 3000:3000 scaffold
+```
+
+---
+
+## Development timeline (9-day sprint)
+
+- **Day 1** — Compound router + Kimi verifier
+- **Day 2** — Compose path + per-scene routing + rate-limit resilience
+- **Day 3** — Fireworks structured outputs + telemetry + composite polish + retry
+- **Day 4** — Wire into `/api/generate` with feature flag + production fallback
+- **Day 5** — Live routing dashboard at `/routing`
+- **Day 6** — Gemma 3 4B routing-intelligence layer + auto-warm-up + dashboard integration
+- **Day 7+** — Documentation, submission, demo video
+
+---
+
+## License
+
+MIT — see LICENSE. Original ProductShot code is my own work. Fireworks, Replicate, Supabase, and Vercel are used per their respective terms.
+
+## Contact
+
+Solo submission, built from Freetown, Sierra Leone.
+Team name: **Scaffold**
