@@ -7,6 +7,7 @@ import type {
 import { ReplicateProvider } from './providers/replicate';
 import { ComposeProvider } from './providers/compose';
 import { verifyWithKimi } from './verify/kimi';
+import { getGemmaRoutingAdvice } from './intelligence/gemma-router';
 import { getScene } from './scenes';
 import { logRoutingEvent } from './telemetry';
 import { createAdminClient } from '../supabase/admin';
@@ -159,6 +160,27 @@ export async function generate(
   decision: RoutingDecision;
 }> {
   const decision = decide(req);
+
+  // Gemma routing intelligence — advisory layer on top of the static decision.
+  // Only runs when the scaffold router itself is enabled; never runs in the
+  // legacy disabled path. On any failure this returns a safe fallback that
+  // matches the static decision, so it can never make routing worse.
+  const scene = getScene(req.sceneId);
+  const gemmaAdvice =
+    process.env.ENABLE_SCAFFOLD_ROUTER === 'true'
+      ? await getGemmaRoutingAdvice({
+          sceneId: req.sceneId,
+          sceneDisplayName: scene?.displayName ?? req.sceneId,
+          scenePreferredPath: decision.path,
+          productHint: req.prompt,
+        })
+      : undefined;
+
+  if (gemmaAdvice && !gemmaAdvice.usedFallback && gemmaAdvice.recommendedPath !== decision.path) {
+    decision.path = gemmaAdvice.recommendedPath;
+    decision.reason = `${decision.reason} (Gemma override, confidence ${gemmaAdvice.confidence.toFixed(2)}: ${gemmaAdvice.reasoning})`;
+  }
+
   const resolvedPrompt = resolvePrompt(req, decision.path);
   const enrichedReq: GenerationRequest = { ...req, prompt: resolvedPrompt };
 
@@ -213,6 +235,10 @@ export async function generate(
         err instanceof Error ? err.message : err,
       );
     }
+  }
+
+  if (gemmaAdvice) {
+    result.gemmaAdvice = gemmaAdvice;
   }
 
   // Fire-and-forget telemetry for the final result

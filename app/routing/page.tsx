@@ -27,6 +27,12 @@ interface EventRow {
   verify_passed: boolean | null;
   was_fallback: boolean;
   total_cost_usd: number;
+  gemma_recommended_path: 'compose' | 'edit' | null;
+  gemma_confidence: number | null;
+  gemma_reasoning: string | null;
+  gemma_product_category: string | null;
+  gemma_used_fallback: boolean | null;
+  gemma_overrode_static: boolean | null;
 }
 
 interface PathStats {
@@ -38,13 +44,21 @@ interface PathStats {
   totalCost: number;
 }
 
+interface GemmaStats {
+  totalCalls: number;
+  liveDecisions: number; // calls where Gemma actually reasoned (not disabled/error fallback)
+  overrideCount: number;
+  avgConfidence: number | null;
+  totalCost: number;
+}
+
 async function loadData() {
   const admin = createAdminClient();
 
   const { data: events, error } = await admin
     .from('routing_events')
     .select(
-      'id, created_at, scene_id, path, tier, cost_usd, latency_ms, verify_score, verify_reasoning, verify_passed, was_fallback, total_cost_usd',
+      'id, created_at, scene_id, path, tier, cost_usd, latency_ms, verify_score, verify_reasoning, verify_passed, was_fallback, total_cost_usd, gemma_recommended_path, gemma_confidence, gemma_reasoning, gemma_product_category, gemma_used_fallback, gemma_overrode_static',
     )
     .order('created_at', { ascending: false })
     .limit(200);
@@ -74,6 +88,28 @@ function pathStats(events: EventRow[], path: string): PathStats {
     : null;
   const totalCost = rows.reduce((s, r) => s + Number(r.total_cost_usd), 0);
   return { path, count, avgCost, avgLatency, avgScore, totalCost };
+}
+
+function gemmaStats(events: EventRow[]): GemmaStats {
+  // "Live decision" = Gemma actually returned a reasoned recommendation,
+  // i.e. it wasn't disabled/misconfigured/erroring (gemma_confidence not null
+  // and not the synthetic 0 used for hard-failure fallbacks with no reasoning).
+  const withGemma = events.filter((e) => e.gemma_confidence !== null);
+  const liveDecisions = withGemma.filter(
+    (e) => e.gemma_used_fallback === false || e.gemma_overrode_static === true,
+  );
+  const overrideCount = events.filter((e) => e.gemma_overrode_static === true).length;
+  const avgConfidence = withGemma.length
+    ? withGemma.reduce((s, e) => s + Number(e.gemma_confidence), 0) / withGemma.length
+    : null;
+
+  return {
+    totalCalls: withGemma.length,
+    liveDecisions: liveDecisions.length,
+    overrideCount,
+    avgConfidence,
+    totalCost: 0, // computed separately below from gemma_cost_usd sum if needed later
+  };
 }
 
 function formatMoney(n: number, digits = 4): string {
@@ -110,6 +146,7 @@ export default async function RoutingDashboardPage() {
 
   const compose = pathStats(events, 'compose');
   const edit = pathStats(events, 'edit');
+  const gemma = gemmaStats(events);
 
   const totalEvents = events.length;
   const totalCost = events.reduce((s, e) => s + Number(e.total_cost_usd), 0);
@@ -178,6 +215,46 @@ export default async function RoutingDashboardPage() {
           />
         </section>
 
+        {/* GEMMA ROUTING INTELLIGENCE */}
+        <section>
+          <h2 className="text-xs uppercase tracking-widest text-neutral-500 mb-3">
+            gemma routing intelligence · Gemma 3 4B (Fireworks)
+          </h2>
+          <div className="rounded border border-emerald-500/30 bg-emerald-500/[0.03] p-5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+              <div>
+                <div className="text-[10px] uppercase text-neutral-500">gemma calls</div>
+                <div className="tabular-nums text-white text-lg">{gemma.totalCalls}</div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase text-neutral-500">live decisions</div>
+                <div className="tabular-nums text-emerald-400 text-lg">
+                  {gemma.liveDecisions}
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase text-neutral-500">path overrides</div>
+                <div className="tabular-nums text-amber-400 text-lg">
+                  {gemma.overrideCount}
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase text-neutral-500">avg confidence</div>
+                <div className="tabular-nums text-white text-lg">
+                  {gemma.avgConfidence === null ? '—' : gemma.avgConfidence.toFixed(2)}
+                </div>
+              </div>
+            </div>
+            <p className="mt-4 text-[11px] text-neutral-500 leading-relaxed">
+              Before every routed generation, Gemma reasons over the product and scene to
+              recommend edit vs. compose — catching high-risk products (reflective, transparent,
+              logo-heavy) before an expensive edit-path attempt is wasted on one likely to fail
+              verification. Falls back to the static scene default whenever Gemma is
+              unavailable or under-confident, so routing never breaks.
+            </p>
+          </div>
+        </section>
+
         {/* PATH COMPARISON */}
         <section>
           <h2 className="text-xs uppercase tracking-widest text-neutral-500 mb-3">
@@ -237,6 +314,7 @@ export default async function RoutingDashboardPage() {
                   <th className="text-right px-3 py-2 font-normal">cost</th>
                   <th className="text-right px-3 py-2 font-normal">latency</th>
                   <th className="text-right px-3 py-2 font-normal">verify</th>
+                  <th className="text-left px-3 py-2 font-normal">gemma</th>
                   <th className="text-left px-3 py-2 font-normal">kimi note</th>
                 </tr>
               </thead>
@@ -282,6 +360,33 @@ export default async function RoutingDashboardPage() {
                           ? '—'
                           : Number(e.verify_score).toFixed(2)}
                       </td>
+                      <td className="px-3 py-2 max-w-[220px]">
+                        {e.gemma_confidence === null ? (
+                          <span className="text-neutral-700">—</span>
+                        ) : (
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-1">
+                              <span
+                                className={`inline-block rounded px-1.5 py-0.5 text-[10px] ${
+                                  e.gemma_overrode_static
+                                    ? 'bg-emerald-500/10 text-emerald-400'
+                                    : 'bg-neutral-800 text-neutral-500'
+                                }`}
+                              >
+                                {e.gemma_overrode_static ? 'overrode' : 'agreed'}
+                              </span>
+                              <span className="text-neutral-500 tabular-nums text-[10px]">
+                                {Number(e.gemma_confidence).toFixed(2)}
+                              </span>
+                            </div>
+                            {e.gemma_product_category && (
+                              <span className="text-neutral-500 truncate">
+                                {e.gemma_product_category}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </td>
                       <td className="px-3 py-2 text-neutral-400 max-w-xs truncate">
                         {e.verify_reasoning?.slice(0, 80) ?? ''}
                       </td>
@@ -290,7 +395,7 @@ export default async function RoutingDashboardPage() {
                 })}
                 {events.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="text-center py-8 text-neutral-600">
+                    <td colSpan={8} className="text-center py-8 text-neutral-600">
                       no events yet — trigger a generation to populate this table
                     </td>
                   </tr>

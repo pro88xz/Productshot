@@ -29,8 +29,10 @@ export async function logRoutingEvent(input: LogRoutingEventInput): Promise<void
     const verifyPassed =
       verification !== undefined && verification.score >= VERIFICATION_THRESHOLD;
 
+    const gemma = result.gemmaAdvice;
+
     const totalCost =
-      result.costUsd + (verification?.costUsd ?? 0);
+      result.costUsd + (verification?.costUsd ?? 0) + (gemma?.costUsd ?? 0);
 
     const { error } = await admin.from('routing_events').insert({
       user_id: userId,
@@ -63,6 +65,16 @@ export async function logRoutingEvent(input: LogRoutingEventInput): Promise<void
       verify_latency_ms: verification?.latencyMs ?? null,
       verify_cost_usd: verification?.costUsd ?? null,
       verify_passed: verification ? verifyPassed : null,
+
+      gemma_recommended_path: gemma?.recommendedPath ?? null,
+      gemma_confidence: gemma?.confidence ?? null,
+      gemma_reasoning: gemma?.reasoning ?? null,
+      gemma_risk_factors: gemma?.riskFactors ?? null,
+      gemma_product_category: gemma?.productCategory ?? null,
+      gemma_used_fallback: gemma?.usedFallback ?? null,
+      gemma_overrode_static: gemma?.overrodeStatic ?? null,
+      gemma_latency_ms: gemma?.latencyMs ?? null,
+      gemma_cost_usd: gemma?.costUsd ?? null,
 
       total_cost_usd: totalCost,
     });

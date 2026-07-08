@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "smoke:verify": "dotenv -e .env.local -- tsx scripts/smoke/verify.ts",
     "smoke:router": "dotenv -e .env.local -- tsx scripts/smoke/router.ts",
+    "smoke:gemma": "dotenv -e .env.local -- tsx scripts/smoke/gemma-router.ts",
     "seed:backdrops": "dotenv -e .env.local -- tsx scripts/seed/backdrops.ts",
     "check:backdrops": "dotenv -e .env.local -- tsx scripts/smoke/backdrop-check.ts",
     "smoke:retry": "EDIT_MIN_VERIFY_SCORE=0.95 dotenv -e .env.local -- tsx scripts/smoke/router-with-retry.ts"

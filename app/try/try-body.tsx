@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -33,6 +33,13 @@ function fileToDataUri(file: File): Promise<string> {
 export function TryBody() {
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
+
+  // Fire-and-forget: wake the Gemma routing deployment the moment someone
+  // lands on the demo page, so it has a head start before they actually
+  // click generate. Never blocks the page and silently no-ops on failure.
+  useEffect(() => {
+    fetch('/api/warm-gemma', { method: 'POST', keepalive: true }).catch(() => {});
+  }, []);
 
   const [stage, setStage] = useState<Stage>('idle');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
