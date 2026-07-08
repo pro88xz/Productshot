@@ -121,8 +121,8 @@ git checkout scaffold-hackathon
 npm install
 ```
 
-Copy `.env.local.hackathon.template` to `.env.local` and fill in:FIREWORKS_API_KEY=...       # fireworks.ai/account/api-keys
-REPLICATE_API_TOKEN=...     # replicate.com/account/api-tokens
+
+REPLICATE_API_TOKEN=... 
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
@@ -136,7 +136,7 @@ ENABLE_GEMMA_ROUTING=true
 FIREWORKS_GEMMA_MODEL=accounts/<your-fireworks-account>/deployments/<deployment-id>
 GEMMA_ROUTING_CONFIDENCE_FLOOR=0.75Apply the SQL migrations to Supabase from `supabase/migrations/`.
 
-Seed the backdrop library (one-time, ~$0.075 in Replicate credit):
+
 
 ```bash
 npm run seed:backdrops
