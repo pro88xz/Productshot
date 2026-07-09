@@ -190,9 +190,19 @@ export async function getGemmaRoutingAdvice(
       : 'Historical edit-path failure rate: (no data yet)',
   ].join('\n');
 
+  // Hard timeout: a cold on-demand Fireworks deployment can take ~90s to
+  // scale up. We can't afford to block the user's generation on that — if
+  // Gemma doesn't answer fast, we fall back to the static decision and let
+  // Gemma keep warming in the background for next time. This must never
+  // make the request slower than the no-Gemma path, only sometimes smarter.
+  const timeoutMs = parseInt(process.env.GEMMA_ROUTING_TIMEOUT_MS ?? '2500', 10);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
     const res = await fetch(FIREWORKS_CHAT, {
       method: 'POST',
+      signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
@@ -211,6 +221,7 @@ export async function getGemmaRoutingAdvice(
         temperature: 0.2,
       }),
     });
+    clearTimeout(timeout);
 
     if (!res.ok) {
       const text = await res.text();
@@ -244,8 +255,12 @@ export async function getGemmaRoutingAdvice(
       costUsd: GEMMA_ROUTING_COST_USD,
     };
   } catch (err) {
+    clearTimeout(timeout);
+    const isTimeout = err instanceof Error && err.name === 'AbortError';
     return staticFallback(
-      `Gemma call threw: ${err instanceof Error ? err.message : String(err)}`,
+      isTimeout
+        ? `Gemma routing timed out after ${timeoutMs}ms (likely cold deployment)`
+        : `Gemma call threw: ${err instanceof Error ? err.message : String(err)}`,
     );
   }
 }
