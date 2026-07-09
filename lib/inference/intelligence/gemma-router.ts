@@ -12,6 +12,12 @@ export interface GemmaRoutingInput {
   sceneId: string;
   sceneDisplayName: string;
   scenePreferredPath: RenderPath;
+  /** The actual product photo. Gemma 3 4B IT is multimodal — passing this
+   * lets it reason about real material/surface properties (reflective,
+   * transparent, logo-heavy) instead of guessing from a text description
+   * that, in practice, is never populated at this point in the request. */
+  sourceImageUrl?: string;
+  /** Optional text hint, kept for cases where a caller does have one. */
   productHint?: string;
   /** Optional: recent historical edit-path failure rate for this scene, 0-1 */
   historicalEditFailureRate?: number;
@@ -28,8 +34,14 @@ Scaffold has two rendering paths:
   never touched), but costs more compute steps (~$0.005/image dominated by
   scene generation) and can look slightly less "integrated" in complex scenes.
 
-Given a product hint and scene, recommend which path to try FIRST, so we
-don't waste a costly edit-path attempt on a product that's likely to fail
+You will usually be shown the actual product photo. Look at it directly:
+assess material (glass, metal, chrome, fabric, plastic), surface finish
+(reflective, transparent, matte), and whether it carries fine text/logos that
+an edit-path model could distort. If no image is provided, reason from the
+scene and any text hint alone, and lower your confidence accordingly.
+
+Given the product and scene, recommend which path to try FIRST, so we don't
+waste a costly edit-path attempt on a product that's likely to fail
 verification and need a compose retry anyway.
 
 Only recommend high confidence (>0.75) when you have a clear, specific reason
@@ -181,14 +193,25 @@ export async function getGemmaRoutingAdvice(
     return staticFallback('FIREWORKS_API_KEY or FIREWORKS_GEMMA_MODEL not configured');
   }
 
-  const userContent = [
+  const userText = [
     `Scene: "${input.sceneDisplayName}" (id: ${input.sceneId})`,
     `Static default path for this scene: ${input.scenePreferredPath}`,
-    input.productHint ? `Product hint: ${input.productHint}` : 'Product hint: (none provided)',
+    input.productHint ? `Product hint: ${input.productHint}` : null,
     input.historicalEditFailureRate !== undefined
       ? `Historical edit-path verification failure rate for this scene: ${(input.historicalEditFailureRate * 100).toFixed(0)}%`
       : 'Historical edit-path failure rate: (no data yet)',
-  ].join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  // Gemma 3 4B IT is multimodal — when we have the source photo, send it
+  // alongside the text so Gemma reasons from the real product, not a guess.
+  const userContent = input.sourceImageUrl
+    ? [
+        { type: 'text', text: userText },
+        { type: 'image_url', image_url: { url: input.sourceImageUrl } },
+      ]
+    : userText;
 
   // Hard timeout: a cold on-demand Fireworks deployment can take ~90s to
   // scale up. We can't afford to block the user's generation on that — if

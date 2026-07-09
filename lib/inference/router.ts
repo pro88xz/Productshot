@@ -172,6 +172,7 @@ export async function generate(
           sceneId: req.sceneId,
           sceneDisplayName: scene?.displayName ?? req.sceneId,
           scenePreferredPath: decision.path,
+          sourceImageUrl: req.sourceImageUrl,
           productHint: req.prompt,
         })
       : undefined;

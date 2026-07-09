@@ -1,0 +1,21 @@
+name: Keep Gemma deployment warm
+
+# Pings /api/warm-gemma every 5 minutes so the on-demand Fireworks deployment
+# never scales to zero during the hackathon judging window. GitHub Actions'
+# schedule can be delayed under load, so 5 minutes is a target, not a
+# guarantee — good enough to keep a deployment warm, since Fireworks only
+# scales down after a longer idle period.
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {} # allows manual trigger from the Actions tab too
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping warm-gemma endpoint
+        run: |
+          curl -sS -X POST "https://theproductshot.com/api/warm-gemma" \
+            -o /dev/null \
+            -w "warm-gemma ping status: %{http_code}\n"
