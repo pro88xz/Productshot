@@ -10,9 +10,15 @@ import {
   generateOneScene,
   fetchOrDecodeToBuffer,
 } from '@/lib/inference/route-adapter';
+import { logRoutingEvent } from '@/lib/inference/telemetry';
+import { MODEL_COSTS } from '@/lib/inference/types';
 
 // Configurable — change here if we swap models
 const REPLICATE_MODEL = 'black-forest-labs/flux-kontext-pro';
+
+// Cost of one legacy FLUX Kontext Pro edit call, for telemetry parity with
+// the scaffold path (which logs its own cost). Falls back to a sane default.
+const LEGACY_EDIT_COST_USD = MODEL_COSTS.replicate['kontext-pro'] ?? 0.04;
 
 // Allow up to 5 minutes for the full multi-image generation
 export const maxDuration = 300;
@@ -169,6 +175,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Path B: Legacy Replicate direct call
+        const legacyStarted = Date.now();
         const output = await runReplicateWithRetry(scene!.id, scene!.prompt);
 
         let url: string | null = null;
@@ -187,20 +194,46 @@ export async function POST(request: NextRequest) {
           throw new Error(`Replicate returned no usable URL for ${scene!.id}`);
         }
 
+        // Log the legacy edit-path result so it shows up on /routing too.
+        // No verification/gemma on this path — those fields stay null.
+        void logRoutingEvent({
+          userId: user.id,
+          generationId,
+          sceneId: scene!.id,
+          sourceImageUrl: source_image_url,
+          decision: {
+            primaryProvider: 'replicate',
+            path: 'edit',
+            reason: 'legacy edit path (scaffold router off)',
+            runVerification: false,
+          },
+          result: {
+            outputUrl: url,
+            provider: 'replicate',
+            path: 'edit',
+            tier: 'kontext-pro',
+            costUsd: LEGACY_EDIT_COST_USD,
+            latencyMs: Date.now() - legacyStarted,
+            wasFallback: false,
+          },
+        });
+
         return { sceneId: scene!.id, url };
       }),
     );
 
-    for (const result of results) {
+    // results[i] corresponds to scenes[i] — allSettled preserves order, so we
+    // recover the sceneId from the index rather than a lost rejection reason.
+    results.forEach((result, i) => {
       if (result.status === 'fulfilled') {
         outputUrls.push(result.value.url);
       } else {
         failures.push({
-          sceneId: 'unknown',
+          sceneId: scenes[i]?.id ?? 'unknown',
           error: result.reason?.message ?? 'Unknown error',
         });
       }
-    }
+    });
   } catch (err) {
     console.error('Replicate call failed:', err);
     await admin
