@@ -92,15 +92,19 @@ function pathStats(events: EventRow[], path: string): PathStats {
 
 function gemmaStats(events: EventRow[]): GemmaStats {
   // "Live decision" = Gemma actually returned a reasoned recommendation,
-  // i.e. it wasn't disabled/misconfigured/erroring (gemma_confidence not null
-  // and not the synthetic 0 used for hard-failure fallbacks with no reasoning).
+  // i.e. it wasn't disabled/misconfigured/erroring. Hard-failure fallbacks are
+  // logged with a synthetic confidence of 0 and gemma_used_fallback = true;
+  // those must NOT be averaged in or they crush the mean toward zero.
   const withGemma = events.filter((e) => e.gemma_confidence !== null);
   const liveDecisions = withGemma.filter(
     (e) => e.gemma_used_fallback === false || e.gemma_overrode_static === true,
   );
   const overrideCount = events.filter((e) => e.gemma_overrode_static === true).length;
-  const avgConfidence = withGemma.length
-    ? withGemma.reduce((s, e) => s + Number(e.gemma_confidence), 0) / withGemma.length
+
+  // Average confidence over LIVE decisions only — the number that reflects how
+  // sure Gemma is when it actually reasons, not diluted by fallback zeros.
+  const avgConfidence = liveDecisions.length
+    ? liveDecisions.reduce((s, e) => s + Number(e.gemma_confidence), 0) / liveDecisions.length
     : null;
 
   return {
@@ -243,6 +247,7 @@ export default async function RoutingDashboardPage() {
                 <div className="tabular-nums text-white text-lg">
                   {gemma.avgConfidence === null ? '—' : gemma.avgConfidence.toFixed(2)}
                 </div>
+                <div className="text-[10px] text-neutral-600">on live decisions</div>
               </div>
             </div>
             <p className="mt-4 text-[11px] text-neutral-500 leading-relaxed">
